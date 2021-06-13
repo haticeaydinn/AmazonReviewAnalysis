@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container p-4 mb-4 my-3">
+  <form method='POST'>
+    {% csrf_token %}
+    {{ form.as_p }}
+    Type the topic you want to analyze: <input type="text" name="name" placeholder="COVID, ELECTION...">
+    Select the time interval: <input list='dates_list' name="date_interval">
+    <datalist id="dates_list">
+      <option value="hour">
+      <option value="day">
+      <option value="week">
+      <option value="month">
+      <option value="year">
+    </datalist>
+    <button class="btn btn-light" type="submit">Analyze!</button>
+  </form>
+  <h5>The word you searched for: {{data}}</h5>
+  <h5>Selected time filter: {{date_interval}}</h5>
+</div>
+
+<div class="row">
+  <div class="col-sm-3">
+    <div class="card text-white bg-secondary mb-3">
+      <div class="card-body">
+        <h3 class="card-title">My Profile</h3>
+        <img src="{{ user_selected.image_url }}" class="card-img-top" alt="..." width="100" height="300">
+        <p class="card-text">{{ request.user.first_name }}{{ " " }}{{ request.user.last_name }}</p>
+        <p class="card-text">{{ request.user.email }}</p>
+      </div>
+    </div>
+
+    <div class="card text-white bg-secondary mb-3">
+      <div class="card-body">
+        <h3 class="card-title">Search History</h3>
+        <a href="/dashboard/showhistory" class="btn btn-primary">History Records</a>
+      </div>
+    </div>
+
+    <div class="card text-white bg-secondary mb-3">
+      <div class="card-body">    
+        <h1 class="card-title" style="text-align:center">Analysis Steps</h1>
+        <h5 class="card-title">Post Titles</h5>
+        <a href="/dashboard/displayposts" class="btn btn-primary">Click to see the post titles</a>
+        <h5 class="card-title">Word Co-occurrence Graph</h5>
+        <a href="/dashboard/networkgraph" class="btn btn-primary">Click to see the network graph</a>
+        <h5 class="card-title">WorldCloud</h5>
+        <a href="/dashboard/wordcloud" class="btn btn-primary">Click to see the wordcloud</a>
+        <h5 class="card-title">Sentiment Analysis</h5>
+        <a href="/dashboard/sentiment" class="btn btn-primary">Click to see the sentiment graph</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-9">
+    <div class="card text-white bg-secondary mb-3">
+      <div class="card-body">
+        <h1 class="card-title" style="text-align:center">Dashboard</h1>
+        <h3 class="card-title" style="text-align:center">Most Common Used Words</h3>
+        <h5 class="card-title">We are collecting the data... </h5>
+        <p class="card-text">Please wait for the graph to appear. Then, you can click the appropriate buttons on the left for more detailed analysis!</p>
+        <img src=r'mplimage.png' class="card-img-top" alt="...">
+        <p class="card-text">You can see the common words used about the topic you choose.</p>
+        <a href="/dashboard/image" class="btn btn-primary">Click to see the graph in detail</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
