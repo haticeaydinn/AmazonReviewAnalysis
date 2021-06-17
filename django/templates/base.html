@@ -12,21 +12,11 @@
   </head>
   <body>
     <!-- Image and text -->
-    <nav class="navbar navbar-light bg-light">
-      <a class="navbar-brand" href="#">
-        <img src="https://cdn.iconscout.com/icon/free/png-512/discover-16-450527.png" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
+    <nav class="navbar navbar-dark bg-dark">
+      <a class="navbar-brand" href="/analysis">
+        <img src="https://live.staticflickr.com/8425/7749078932_c476055cdf_w.jpg" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
         AMAZON REVIEWS ANALYSIS
       </a>
-      <form class="form-inline">
-        {% if user.is_authenticated %}
-          <span class="navbar-text" style="text-align: center;">
-            Hi Hatice!
-          </span>
-          <a class="btn btn-primary" href="/logout" role="button">Logout</a>
-        {% else %}
-          <a class="btn btn-primary" href="/login" role="button">Login</a>
-        {% endif %}
-      </form>
     </nav>
     <div class="container-fluid">
         {% block content %}
