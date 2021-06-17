@@ -51,7 +51,7 @@ def get_product_reviews(url_example):
         url_splitted = 'https://www.amazon.com/' + url_base[3] + '/product-reviews/' + url_base[5] + '/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews'
         #print(url_splitted)
         # end slicing
-        for page_num in range(1,101):
+        for page_num in range(1,51):
             url_new = url_splitted + '&pageNumber=' + str(page_num)
             #print(url_new + '\n')
             data = scrape(url_new) 
