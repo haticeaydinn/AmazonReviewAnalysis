@@ -2,16 +2,19 @@
 
 {% block content %}
 
-<div class="container p-4 mb-4 my-3">
-  <label for="basic-url">Amazon Product URL</label>
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon3">https://www.amazon.com/Apple-iPad-10-2-inch-Wi-Fi-32GB/product-reviews/B08J65DST5/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews</span>
-    </div>
-    <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">
-    <button type="submit" class="btn btn-primary">Submit</button>
+<body>
+  <div class="container p-4 mb-4 my-3">
+    <label for="basic-url">SWE599 Graduation Project</label>
+    <form action="" method="POST">
+      {% csrf_token %}
+      Amazon Product URL: <input type="text" name="Firstname" value= '{% if submitbutton == "Submit" %} {{ firstname }} {% endif %}'/><br><br>
+      <input type="Submit" name="Submit" value="Submit"/>
+    </form>
+  
+    {% if submitbutton == "Submit"  %} 
+      <h1> Your URL is {{ firstname }} </h1>
+    {% endif %}
   </div>
-</div>
-
+</body>
 
 {% endblock %}

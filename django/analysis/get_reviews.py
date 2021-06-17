@@ -1,7 +1,6 @@
 from selectorlib import Extractor
 import requests 
-import json 
-from time import sleep
+import json
 import csv
 from dateutil import parser as dateparser
 import emoji
