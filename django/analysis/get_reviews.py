@@ -37,13 +37,13 @@ def scrape(url):
     # Pass the HTML of the page and create 
     return e.extract(r.text)
 
-# product_data = []
-with open("urls.txt",'r') as urllist, open('data.csv','w') as outfile:
-    writer = csv.DictWriter(outfile, fieldnames=["title","content","date","variant","images","verified","author","rating","product","url"],quoting=csv.QUOTE_ALL)
-    writer.writeheader()
-    for url in urllist.read().splitlines():
+
+def get_product_reviews(url_example):
+    with open('data.csv','w') as outfile:
+        writer = csv.DictWriter(outfile, fieldnames=["title","content","date","variant","images","verified","author","rating","product","url"],quoting=csv.QUOTE_ALL)
+        writer.writeheader()
         # slice the url
-        url_base = url.split('/')
+        url_base = url_example.split('/')
         url_splitted = 'https://www.amazon.com/' + url_base[3] + '/product-reviews/' + url_base[5] + '/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews'
         #print(url_splitted)
         # end slicing
@@ -84,4 +84,4 @@ with open("urls.txt",'r') as urllist, open('data.csv','w') as outfile:
                         reviews_title = r['title']
                         r['title'] = emoji.get_emoji_regexp().sub(u'', reviews_title)
                         writer.writerow(r)
-                    # sleep(5)
+
