@@ -1,3 +1,4 @@
+import os
 from selectorlib import Extractor
 import requests 
 import json
@@ -5,8 +6,6 @@ import csv
 from dateutil import parser as dateparser
 import emoji
 
-# Create an Extractor by reading from the YAML file
-e = Extractor.from_yaml_file('selectors.yml')
 
 def scrape(url):    
     headers = {
@@ -33,12 +32,18 @@ def scrape(url):
         else:
             print("Page %s must have been blocked by Amazon as the status code was %d"%(url,r.status_code))
         return None
-    # Pass the HTML of the page and create 
+    # Pass the HTML of the page and create
+    # Create an Extractor by reading from the YAML file
+    selector_file = os.path.dirname(os.path.realpath(__file__)) + '\\selectors.yml'
+    e = Extractor.from_yaml_file(selector_file) 
     return e.extract(r.text)
 
 
 def get_product_reviews(url_example):
-    with open('data.csv','w') as outfile:
+    print(url_example)
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    print(data_file)
+    with open(data_file,'w') as outfile:
         writer = csv.DictWriter(outfile, fieldnames=["title","content","date","variant","images","verified","author","rating","product","url"],quoting=csv.QUOTE_ALL)
         writer.writeheader()
         # slice the url
@@ -46,7 +51,7 @@ def get_product_reviews(url_example):
         url_splitted = 'https://www.amazon.com/' + url_base[3] + '/product-reviews/' + url_base[5] + '/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews'
         #print(url_splitted)
         # end slicing
-        for page_num in range(1,101):
+        for page_num in range(1,3):
             url_new = url_splitted + '&pageNumber=' + str(page_num)
             #print(url_new + '\n')
             data = scrape(url_new) 
