@@ -15,6 +15,7 @@ import string
 import io
 import pandas as pd
 import os
+import re
 
 # Create your views here.
 def index(request):
@@ -49,21 +50,20 @@ def display_common_words(request):
         my_string += element + ' '
     
     tokens = word_tokenize(my_string)
+
     # convert to lower case
     tokens = [w.lower() for w in tokens]
     # remove punctuation from each word
-    
     table = str.maketrans('', '', string.punctuation)
     stripped = [w.translate(table) for w in tokens]
     # remove remaining tokens that are not alphabetic
     words = [word for word in stripped if word.isalpha()]
     # filter out stop words
-    
     stop_words = set(stopwords.words('english'))
     words = [w for w in words if (not w in stop_words and  w != 'nt')]
-
     # word_freq = Counter(nouns)
     word_freq = Counter(words)
+
     common_nouns = word_freq.most_common(10)
 
     x_n = []
@@ -101,3 +101,63 @@ def display_common_words(request):
 
     response = HttpResponse(buf.getvalue(), content_type='image/png')
     return response
+
+
+def freq(input_string):
+    '''
+    This function is from https://stackoverflow.com/questions/33723089/how-to-get-consecutive-word-count-of-a-string-python
+    '''
+    freq = {}
+    words = input_string.split()
+    if len(words) == 1:
+        return freq
+
+    for idx, word in enumerate(words):
+        if idx+1 < len(words):
+            word_pair = (word, words[idx+1])
+            if word_pair in freq:
+                freq[word_pair] += 1
+            else:
+                freq[word_pair] = 1
+
+    return freq
+
+
+def cooccurance_words(request):
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    df = pd.read_csv(data_file, engine='python')
+    posts = df['content'].values
+
+    new_post = ''
+    words = ''
+    for post in posts:
+        post = re.sub('\s', ' ', post)
+        print(post)
+        new_post += post + ' '
+        for token in word_tokenize(post):
+            token = token.lower()
+            table = str.maketrans('', '', string.punctuation)
+            token = token.translate(table)
+            stop_words = set(stopwords.words('english'))
+            if token not in stop_words and len(token) > 1 and token != 'nt':
+                words += token + " "
+        words += ". "
+    
+    smt = freq(words)
+
+    del_key_list=[]
+    for key in smt:
+        if "." in key:
+            print(key)
+            del_key_list.append(key)
+            
+    for keys in del_key_list:
+        del smt[keys]
+
+    sorted_dict = sorted(smt.items(), key=lambda x: x[1], reverse=True)[0:20]
+
+    post_dict = {
+        "post_title_data": sorted_dict
+    }
+
+    return render(request, "occurance.html", post_dict)

@@ -14,7 +14,8 @@
     {% if submitbutton == "Submit"  %} 
       <h3> Your URL is {{ amazonurl }} </h3>
       <h3> We collected top 1000 reviews for this product! </h3>
-      <a class="btn btn-outline-dark" href="/analysis/commonwords" role="button">Click here to see the analysis!</a>
+      <a class="btn btn-outline-dark" href="/analysis/commonwords" role="button">Click here to see the most common 10 words!</a>
+      <a class="btn btn-outline-dark" href="/analysis/cooccurance" role="button">Click here to see the cooccurance diagram!</a>
     {% endif %}
   </div>
 </body>
