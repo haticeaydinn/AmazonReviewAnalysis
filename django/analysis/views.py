@@ -16,6 +16,8 @@ import io
 import pandas as pd
 import os
 import re
+from textblob import TextBlob
+import json
 
 # Create your views here.
 def index(request):
@@ -132,7 +134,7 @@ def cooccurance_words(request):
     words = ''
     for post in posts:
         post = re.sub('\s', ' ', post)
-        print(post)
+        #print(post)
         new_post += post + ' '
         for token in word_tokenize(post):
             token = token.lower()
@@ -148,7 +150,7 @@ def cooccurance_words(request):
     del_key_list=[]
     for key in smt:
         if "." in key:
-            print(key)
+            #print(key)
             del_key_list.append(key)
             
     for keys in del_key_list:
@@ -161,3 +163,152 @@ def cooccurance_words(request):
     }
 
     return render(request, "occurance.html", post_dict)
+
+
+def sentiment_graph(request):
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    df = pd.read_csv(data_file, engine='python')
+
+    for index, row in df.iterrows():
+        text = row['content']
+        #print(index, text)
+        blob = TextBlob(text)
+        #print(len(blob.sentences))
+        
+        avg_pol = 0
+        avg_sentiment = 0
+        for sentence in blob.sentences:
+            #print(len(blob.sentences))
+            #print(sentence.sentiment.polarity)
+            avg_pol += sentence.sentiment.polarity
+        
+        avg_sentiment = avg_pol/len(blob.sentences)
+        #print(f'Average polarity: {avg_sentiment}')
+        
+        df.at[index,'avg_polarity'] = avg_sentiment
+        
+        if avg_sentiment > 0.0:
+            df.at[index,'sentiment'] = 'Positive'
+        elif avg_sentiment < 0.0:
+            df.at[index,'sentiment'] = 'Negative'
+        else:
+            df.at[index,'sentiment'] = 'Neutral'
+    
+
+    file2 = df['sentiment'].values
+
+    pos_count = 0
+    neg_count = 0
+    neut_count = 0
+
+    for line in file2:
+        if line == 'Positive':
+            pos_count += 1
+        elif line == 'Negative':
+            neg_count += 1
+        elif line == 'Neutral':
+            neut_count += 1
+
+    plt.switch_backend('agg')
+    labels = 'Positive', 'Negative', 'Neutral'
+    sizes = [pos_count, neg_count, neut_count]
+    colors = ['#00cc00','#ff0000','#ffcc99']
+
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes, labels=labels, autopct='%1.1f%%',
+            shadow=True, startangle=90, colors=colors)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    # plt.close(fig)
+
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    return response
+
+
+def positive_df(request):
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    df = pd.read_csv(data_file, engine='python')
+
+    for index, row in df.iterrows():
+        text = row['content']
+        #print(index, text)
+        blob = TextBlob(text)
+        #print(len(blob.sentences))
+        
+        avg_pol = 0
+        avg_sentiment = 0
+        for sentence in blob.sentences:
+            #print(len(blob.sentences))
+            #print(sentence.sentiment.polarity)
+            avg_pol += sentence.sentiment.polarity
+        
+        avg_sentiment = avg_pol/len(blob.sentences)
+        #print(f'Average polarity: {avg_sentiment}')
+        
+        df.at[index,'avg_polarity'] = avg_sentiment
+        
+        if avg_sentiment > 0.0:
+            df.at[index,'sentiment'] = 'Positive'
+        elif avg_sentiment < 0.0:
+            df.at[index,'sentiment'] = 'Negative'
+        else:
+            df.at[index,'sentiment'] = 'Neutral'
+    
+    pos_df = df.sort_values(by=['avg_polarity'], ascending=False).head(5)
+
+    # parsing the DataFrame in json format.
+    json_records = pos_df.reset_index().to_json(orient ='records')
+    data = []
+    data = json.loads(json_records)
+    
+    #return HttpResponse(pos_df.to_html())
+    return data
+
+
+def negative_df(request):
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    df = pd.read_csv(data_file, engine='python')
+
+    for index, row in df.iterrows():
+        text = row['content']
+        #print(index, text)
+        blob = TextBlob(text)
+        #print(len(blob.sentences))
+        
+        avg_pol = 0
+        avg_sentiment = 0
+        for sentence in blob.sentences:
+            #print(len(blob.sentences))
+            #print(sentence.sentiment.polarity)
+            avg_pol += sentence.sentiment.polarity
+        
+        avg_sentiment = avg_pol/len(blob.sentences)
+        #print(f'Average polarity: {avg_sentiment}')
+        
+        df.at[index,'avg_polarity'] = avg_sentiment
+        
+        if avg_sentiment > 0.0:
+            df.at[index,'sentiment'] = 'Positive'
+        elif avg_sentiment < 0.0:
+            df.at[index,'sentiment'] = 'Negative'
+        else:
+            df.at[index,'sentiment'] = 'Neutral'
+    
+    neg_df_before = df.sort_values(by=['avg_polarity'], ascending=False).tail(5)
+
+    # parsing the DataFrame in json format.
+    neg_df = neg_df_before.sort_values(by=['avg_polarity'])
+    json_records = neg_df.reset_index().to_json(orient ='records')
+    data = []
+    data = json.loads(json_records)
+    
+    #return HttpResponse(neg_df.to_html())
+    return data
+
+
+def sentiment_all(request):
+    neg_context = negative_df(request)
+    pos_context = positive_df(request)
+    return render(request, "sentiment.html", {'p': pos_context,'n': neg_context})
