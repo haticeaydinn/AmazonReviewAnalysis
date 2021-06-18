@@ -37,8 +37,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'analysis.apps.AnalysisConfig'
+    'analysis.apps.AnalysisConfig',
+    'django_q'
 ]
+
+Q_CLUSTER = {
+    "name": "AmazonQcluster",
+    "orm": "default",
+    "timeout": 60 * 120,
+    "retry": 60 * 120,
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

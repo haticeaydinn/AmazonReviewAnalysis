@@ -19,6 +19,7 @@ import re
 from textblob import TextBlob
 import json
 from .models import ReviewTable, ConsecutiveWordsTable
+from django_q.tasks import async_task
 
 # Create your views here.
 def index(request):
@@ -30,7 +31,9 @@ def index(request):
     if request.method =='POST':
         # get 1000 reviews from amazon
         print("Data collection is starting!")
-        get_product_reviews(amazonurl)
+        # async_task(write_table_v1, text, user, s_id, date)
+        #get_product_reviews(amazonurl)
+        async_task(get_product_reviews, amazonurl) 
         print("Data collection is done!")
 
     return render(request, 'index.html', context)
