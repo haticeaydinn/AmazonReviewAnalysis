@@ -47,7 +47,7 @@ def common_words(request):
 def display_common_words(request):
     fig = Figure()
     
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     db_post = pd.read_csv(data_file, engine='python')
     text_list = db_post['content'].tolist()
 
@@ -130,7 +130,7 @@ def freq(input_string):
 
 
 def cooccurance_words(request):
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     df = pd.read_csv(data_file, engine='python')
     posts = df['content'].values
 
@@ -170,7 +170,7 @@ def cooccurance_words(request):
 
 
 def sentiment_graph(request):
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     df = pd.read_csv(data_file, engine='python')
 
     for index, row in df.iterrows():
@@ -232,7 +232,7 @@ def sentiment_graph(request):
 
 
 def positive_df(request):
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     df = pd.read_csv(data_file, engine='python')
 
     for index, row in df.iterrows():
@@ -272,7 +272,7 @@ def positive_df(request):
 
 
 def negative_df(request):
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     df = pd.read_csv(data_file, engine='python')
 
     for index, row in df.iterrows():

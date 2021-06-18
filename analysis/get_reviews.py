@@ -35,14 +35,14 @@ def scrape(url):
         return None
     # Pass the HTML of the page and create
     # Create an Extractor by reading from the YAML file
-    selector_file = os.path.dirname(os.path.realpath(__file__)) + '\\selectors.yml'
+    selector_file = os.path.dirname(os.path.realpath(__file__)) + '/selectors.yml'
     e = Extractor.from_yaml_file(selector_file) 
     return e.extract(r.text)
 
 
 def get_product_reviews(url_example):
     print(url_example)
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '\\data.csv'
+    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     print(data_file)
     with open(data_file,'w') as outfile:
         writer = csv.DictWriter(outfile, fieldnames=["title","content","date","variant","images","verified","author","rating","product","url"],quoting=csv.QUOTE_ALL)
