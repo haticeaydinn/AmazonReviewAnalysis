@@ -18,6 +18,7 @@ import os
 import re
 from textblob import TextBlob
 import json
+from .models import ReviewTable, ConsecutiveWordsTable
 
 # Create your views here.
 def index(request):

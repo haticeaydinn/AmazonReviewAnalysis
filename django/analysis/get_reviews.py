@@ -5,6 +5,7 @@ import json
 import csv
 from dateutil import parser as dateparser
 import emoji
+from .models import ReviewTable
 
 
 def scrape(url):    
@@ -88,4 +89,17 @@ def get_product_reviews(url_example):
                         reviews_title = r['title']
                         r['title'] = emoji.get_emoji_regexp().sub(u'', reviews_title)
                         writer.writerow(r)
-
+                        # write to postgres
+                        a_review = ReviewTable()
+                        a_review.title = r['title']
+                        a_review.content = r['content']
+                        a_review.date = r['date']
+                        a_review.variant = r['variant']
+                        if r['images']:
+                            a_review.images = r['images']
+                        a_review.verified = r['verified']
+                        a_review.author = r['author']
+                        a_review.rating = r['rating']
+                        a_review.product = data["product_title"]
+                        a_review.url = r['url']
+                        a_review.save()
