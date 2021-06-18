@@ -76,10 +76,23 @@ WSGI_APPLICATION = 'swe.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+'''
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'psluudsc',
+        'USER': 'psluudsc',
+        'PASSWORD': 'r9uHmYmtrSQPTvAfQhW17tSb9UfnO2gi',
+        'HOST': 'batyr.db.elephantsql.com',
+        'PORT': '5432'
     }
 }
 
