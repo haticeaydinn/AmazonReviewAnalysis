@@ -21,8 +21,8 @@ import json
 from .models import ReviewTable, ConsecutiveWordsTable
 from django_q.tasks import async_task
 import psycopg2
-import environ
 from django.db.models import Sum
+from django.db import close_old_connections
 
 # Create your views here.
 def index(request):
@@ -40,6 +40,7 @@ def index(request):
             print("Data collection is starting!")
             # async_task(write_table_v1, text, user, s_id, date)
             #get_product_reviews(amazonurl)
+            close_old_connections()
             async_task(get_product_reviews, amazonurl) 
             print("Data collection is done!")
 
@@ -53,7 +54,6 @@ def common_words(request):
 
 
 def db_conn():
-    #env = environ.Env()
     connection = psycopg2.connect(
         database='psluudsc',
         user='psluudsc',
@@ -72,10 +72,12 @@ def display_common_words(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
+    close_old_connections()
     conn = db_conn()
     sql = f"SELECT content FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     db_post = pd.read_sql_query(sql, conn)
     conn.close()
+    close_old_connections()
 
     #after db connection these two lines are useless
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
@@ -166,10 +168,12 @@ def cooccurance_words(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
+    close_old_connections()
     conn = db_conn()
     sql = f"SELECT content FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     df = pd.read_sql_query(sql, conn)
     conn.close()
+    close_old_connections()
 
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #df = pd.read_csv(data_file, engine='python')
@@ -216,10 +220,12 @@ def sentiment_graph(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
+    close_old_connections()
     conn = db_conn()
     sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     df = pd.read_sql_query(sql, conn)
     conn.close()
+    close_old_connections()
 
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #df = pd.read_csv(data_file, engine='python')
@@ -288,10 +294,12 @@ def positive_df(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
+    close_old_connections()
     conn = db_conn()
     sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     df = pd.read_sql_query(sql, conn)
     conn.close()
+    close_old_connections()
 
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #df = pd.read_csv(data_file, engine='python')
@@ -338,10 +346,12 @@ def negative_df(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
+    close_old_connections()
     conn = db_conn()
     sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     df = pd.read_sql_query(sql, conn)
     conn.close()
+    close_old_connections()
 
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #df = pd.read_csv(data_file, engine='python')
