@@ -2,10 +2,22 @@
 
 {% block content %}
 
-
-{% for data in post_title_data %}
-    <h3>{{ data }}</h3>
-{% endfor %}
-
+<table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Two consecutive words & How many reviews</th>
+      </tr>
+    </thead>
+    <tbody>
+    <!-- jinja2 Technique -->
+    {% if post_title_data %}  
+    {% for data in post_title_data %}
+      <tr>
+        <td>{{ data }}</td>
+      </tr>
+    {% endfor %}
+    {% endif %}
+    </tbody>
+  </table>
 
 {% endblock %}

@@ -6,6 +6,7 @@ import csv
 from dateutil import parser as dateparser
 import emoji
 from .models import ReviewTable
+from textblob import TextBlob
 
 
 def scrape(url):    
@@ -45,7 +46,6 @@ def get_product_reviews(url_example):
     # slice the url
     url_base = url_example.split('/')
     url_splitted = 'https://www.amazon.com/' + url_base[3] + '/product-reviews/' + url_base[5] + '/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews'
-    #print(url_splitted)
     # end slicing
     for page_num in range(1,51):
         url_new = url_splitted + '&pageNumber=' + str(page_num)
@@ -86,7 +86,7 @@ def get_product_reviews(url_example):
                     r['author'] = strdecode_str
                     reviews_title = r['title']
                     r['title'] = emoji.get_emoji_regexp().sub(u'', reviews_title)
-                    # writer.writerow(r)
+
                     # write to postgres
                     a_review = ReviewTable()
                     a_review.title = r['title']
@@ -101,6 +101,23 @@ def get_product_reviews(url_example):
                     a_review.product = data["product_title"]
                     a_review.url = r['url']
                     a_review.product_id = url_base[5]
+
+                    text = r['content']
+                    blob = TextBlob(text)
+                    avg_pol = 0
+                    avg_sentiment = 0
+                    for sentence in blob.sentences:
+                        avg_pol += sentence.sentiment.polarity
+                    avg_sentiment = avg_pol/len(blob.sentences)
+                    a_review.avg_polarity = avg_sentiment
+                    
+                    if avg_sentiment > 0.0:
+                        a_review.sentiment = 'Positive'
+                    elif avg_sentiment < 0.0:
+                        a_review.sentiment = 'Negative'
+                    else:
+                        a_review.sentiment = 'Neutral'
+
                     a_review.save()
 
 
