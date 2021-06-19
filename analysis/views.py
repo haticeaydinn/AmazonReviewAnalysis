@@ -20,6 +20,8 @@ from textblob import TextBlob
 import json
 from .models import ReviewTable, ConsecutiveWordsTable
 from django_q.tasks import async_task
+import psycopg2
+import environ
 
 # Create your views here.
 def index(request):
@@ -27,28 +29,56 @@ def index(request):
     amazonurl= request.POST.get('Amazonurl')
     submitbutton= request.POST.get('Submit')
     context= {'amazonurl': amazonurl, 'submitbutton': submitbutton}
+    global val
+    def val():
+        return amazonurl
 
-    if request.method =='POST':
-        # get 1000 reviews from amazon
-        print("Data collection is starting!")
-        # async_task(write_table_v1, text, user, s_id, date)
-        #get_product_reviews(amazonurl)
-        async_task(get_product_reviews, amazonurl) 
-        print("Data collection is done!")
+    try:
+        if request.method =='POST':
+            # get 1000 reviews from amazon
+            print("Data collection is starting!")
+            # async_task(write_table_v1, text, user, s_id, date)
+            #get_product_reviews(amazonurl)
+            async_task(get_product_reviews, amazonurl) 
+            print("Data collection is done!")
 
-    return render(request, 'index.html', context)
-    #return render(request, 'index.html')
-
+        return render(request, 'index.html', context)
+    except psycopg2.OperationalError:
+        error_message = "There are lots of connection to db right now. Please contact to administrator or send an email to 'hatice3178@yahoo.com.tr'. Thank you!"
+        return HttpResponse(error_message, content_type="text/plain")
 
 def common_words(request):
     return render(request, 'commonwords.html')
 
 
+def db_conn():
+    #env = environ.Env()
+    connection = psycopg2.connect(
+        database='psluudsc',
+        user='psluudsc',
+        password='r9uHmYmtrSQPTvAfQhW17tSb9UfnO2gi',
+        host='batyr.db.elephantsql.com',
+        port='5432')
+    return connection
+
+
+
 def display_common_words(request):
     fig = Figure()
-    
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    db_post = pd.read_csv(data_file, engine='python')
+
+    user_url = val()
+    user_url_base = user_url.split('/')
+    product_id_url = user_url_base[5]
+
+    # get reviews from db
+    conn = db_conn()
+    sql = f"SELECT content FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
+    db_post = pd.read_sql_query(sql, conn)
+    conn.close()
+
+    #after db connection these two lines are useless
+    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
+    #db_post = pd.read_csv(data_file, engine='python')
     text_list = db_post['content'].tolist()
 
     my_string = ''
@@ -130,8 +160,18 @@ def freq(input_string):
 
 
 def cooccurance_words(request):
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    df = pd.read_csv(data_file, engine='python')
+    user_url = val()
+    user_url_base = user_url.split('/')
+    product_id_url = user_url_base[5]
+
+    # get reviews from db
+    conn = db_conn()
+    sql = f"SELECT content FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
+    df = pd.read_sql_query(sql, conn)
+    conn.close()
+
+    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
+    #df = pd.read_csv(data_file, engine='python')
     posts = df['content'].values
 
     new_post = ''
@@ -170,8 +210,18 @@ def cooccurance_words(request):
 
 
 def sentiment_graph(request):
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    df = pd.read_csv(data_file, engine='python')
+    user_url = val()
+    user_url_base = user_url.split('/')
+    product_id_url = user_url_base[5]
+
+    # get reviews from db
+    conn = db_conn()
+    sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
+    df = pd.read_sql_query(sql, conn)
+    conn.close()
+
+    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
+    #df = pd.read_csv(data_file, engine='python')
 
     for index, row in df.iterrows():
         text = row['content']
@@ -232,8 +282,18 @@ def sentiment_graph(request):
 
 
 def positive_df(request):
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    df = pd.read_csv(data_file, engine='python')
+    user_url = val()
+    user_url_base = user_url.split('/')
+    product_id_url = user_url_base[5]
+
+    # get reviews from db
+    conn = db_conn()
+    sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
+    df = pd.read_sql_query(sql, conn)
+    conn.close()
+
+    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
+    #df = pd.read_csv(data_file, engine='python')
 
     for index, row in df.iterrows():
         text = row['content']
@@ -272,8 +332,18 @@ def positive_df(request):
 
 
 def negative_df(request):
-    data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    df = pd.read_csv(data_file, engine='python')
+    user_url = val()
+    user_url_base = user_url.split('/')
+    product_id_url = user_url_base[5]
+
+    # get reviews from db
+    conn = db_conn()
+    sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
+    df = pd.read_sql_query(sql, conn)
+    conn.close()
+
+    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
+    #df = pd.read_csv(data_file, engine='python')
 
     for index, row in df.iterrows():
         text = row['content']

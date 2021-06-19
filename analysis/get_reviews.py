@@ -42,6 +42,70 @@ def scrape(url):
 
 def get_product_reviews(url_example):
     print(url_example)
+    # slice the url
+    url_base = url_example.split('/')
+    url_splitted = 'https://www.amazon.com/' + url_base[3] + '/product-reviews/' + url_base[5] + '/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews'
+    #print(url_splitted)
+    # end slicing
+    for page_num in range(1,51):
+        url_new = url_splitted + '&pageNumber=' + str(page_num)
+        #print(url_new + '\n')
+        data = scrape(url_new) 
+        if data:
+            if data['reviews'] == None:
+                print("No page founded!!!")
+                continue
+            else:
+                for r in data['reviews']:
+                    r["product"] = data["product_title"]
+                    r['url'] = url_new
+                    if 'verified' in r:
+                        if r['verified'] == None:
+                            r['verified'] = 'No'
+                        else:
+                            if 'Verified Purchase' in r['verified']:
+                                r['verified'] = 'Yes'
+                            else:
+                                r['verified'] = 'Yes'
+                    if r['rating'] == None:
+                        r['rating'] = 0.0
+                    else:
+                        r['rating'] = r['rating'].split(' out of')[0]
+                    date_posted = r['date'].split('on ')[-1]
+                    if r['images']:
+                        r['images'] = "\n".join(r['images'])
+                    r['date'] = dateparser.parse(date_posted).strftime('%d %b %Y')
+                    reviews_content = r['content']
+                    r['content'] = emoji.get_emoji_regexp().sub(u'', reviews_content)
+                    my_str = r['author']
+                    #encode() method
+                    strencode = my_str.encode("ascii", "ignore")               
+                    #decode() method
+                    strdecode = strencode.decode()
+                    strdecode_str = str(strdecode)
+                    r['author'] = strdecode_str
+                    reviews_title = r['title']
+                    r['title'] = emoji.get_emoji_regexp().sub(u'', reviews_title)
+                    # writer.writerow(r)
+                    # write to postgres
+                    a_review = ReviewTable()
+                    a_review.title = r['title']
+                    a_review.content = r['content']
+                    a_review.date = r['date']
+                    a_review.variant = r['variant']
+                    if r['images']:
+                        a_review.images = r['images']
+                    a_review.verified = r['verified']
+                    a_review.author = r['author']
+                    a_review.rating = r['rating']
+                    a_review.product = data["product_title"]
+                    a_review.url = r['url']
+                    a_review.product_id = url_base[5]
+                    a_review.save()
+
+
+def get_product_reviews_csv(url_example):
+    print(url_example)
     data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     print(data_file)
     with open(data_file,'w') as outfile:
