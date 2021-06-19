@@ -152,5 +152,5 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 STATIC_URL = '/static/'
 
-django_heroku.config(locals())
+django_heroku.settings(locals())
 DATABASES['default']['CONN_MAX_AGE'] = 0
