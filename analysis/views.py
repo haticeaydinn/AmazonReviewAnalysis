@@ -22,6 +22,7 @@ from .models import ReviewTable, ConsecutiveWordsTable
 from django_q.tasks import async_task
 import psycopg2
 import environ
+from django.db.models import Sum
 
 # Create your views here.
 def index(request):
@@ -410,8 +411,25 @@ def filter(request):
 
 def FilterView(request):
     qs = filter(request)
+    if qs:
+        total_counter = len(qs)
+        total_polarity = qs.aggregate(Sum('avg_polarity'))
+        print(type(total_polarity))
+        print(total_polarity)
+        avg_polarity = list(total_polarity.values())[0] / total_counter
+        if avg_polarity > 0.0:
+            sentiment = 'Users have positive idea about this product.'
+        elif avg_polarity == 0.0:
+            sentiment = 'Users have neutral idea about this product.'
+        else:
+            sentiment = 'Users have negative idea about this product.'
+    else:
+        total_counter = 0
+        sentiment = 'No info!'
     context = {
-        'queryset': qs
+        'queryset': qs,
+        'total_count': total_counter,
+        'sentiment': sentiment
     }
 
     return render(request, "filtering.html", context)
