@@ -386,3 +386,32 @@ def sentiment_all(request):
     neg_context = negative_df(request)
     pos_context = positive_df(request)
     return render(request, "sentiment.html", {'p': pos_context,'n': neg_context})
+
+
+def is_valid_queryparam(param):
+    return param != '' and param is not None
+
+
+def filter(request):
+    qs = ReviewTable.objects.all()
+    title_contains_query = request.GET.get('content')
+    verified = request.GET.get('verified')
+    not_verified = request.GET.get('notVerified')
+
+    if title_contains_query != '' and title_contains_query is not None:
+        qs = qs.filter(content__icontains=title_contains_query)
+
+    if verified == 'on':
+        qs = qs.filter(verified='Yes')
+    elif not_verified == 'on':
+        qs = qs.filter(verified='No')
+
+    return qs
+
+def FilterView(request):
+    qs = filter(request)
+    context = {
+        'queryset': qs
+    }
+
+    return render(request, "filtering.html", context)

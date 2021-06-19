@@ -1,12 +1,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<style>
+  h1 {
+    text-align: center;
+  }
+</style>
 <body>
   <div class="container p-4 mb-4 my-3">
-    <label for="basic-url">SWE599 Graduation Project</label>
+    <h1>SWE599 Graduation Project</h1>
+    <br>
+    </br>
+    Click here to see aand filter all reviews: 
+    <a class="btn btn-outline-dark" href="/analysis/filter" role="button">All Reviews</a>
+    <br>
+    </br>
     <form action="" method="POST">
       {% csrf_token %}
+      <h6>Go to Amazon.com and search for a product!</h6>
+      <h6>Example URL: </h6>
+      https://www.amazon.com/Apple-iPad-Air-10-9-inch-Wi-Fi-64GB/dp/B08J5WFP7B/ref=sr_1_3?dchild=1&keywords=ipad+10&qid=1624100392&sr=8-3
+      <br>
+      </br>
       Amazon Product URL: <input type="text" name="Amazonurl" value= '{% if submitbutton == "Submit" %} {{ amazonurl }} {% endif %}'/><br><br>
       <input type="Submit" name="Submit" value="Submit"/>
     </form>

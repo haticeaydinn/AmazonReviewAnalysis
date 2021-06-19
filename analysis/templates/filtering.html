@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<body>
+    <main role="main" class="container">
+
+      <h3>Filter Journals</h3>
+      <form method="GET" action=".">
+        <div class="form-row">
+            <div class="form-group col-12">
+                <div class="input-group">
+                    <input class="form-control py-2 border-right-0 border" type="search" name="content" placeholder="Content contains..." />
+                    <span class="input-group-append">
+                        <div class="input-group-text bg-transparent">
+                            <i class="fa fa-search"></i>
+                        </div>
+                    </span>
+                </div>
+            </div>        
+        </div>
+        <div class="form-group">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="verified" name="verified">
+            <label class="form-check-label" for="verified">
+              Verified
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="notVerified" name="notVerified">
+            <label class="form-check-label" for="notVerified">
+              Not verified
+            </label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+
+      <hr />
+
+      <div class="row">
+        <table class="table table-dark table-striped">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Review</th>
+                <th>Date</th>
+                <th>Verified</th>
+                <th>Polarity Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+            <!-- jinja2 Technique -->
+            {% if queryset %}  
+            {% for i in queryset %}
+              <tr>
+                <td>{{i.title}}</td>
+                <td>{{i.content}}</td>
+                <td>{{i.date}}</td>
+                <td>{{i.verified}}</td>
+                <td>{{i.avg_polarity}}</td>
+              </tr>
+            {% endfor %}
+            {% endif %}
+            </tbody>
+          </table>
+      </div>
+
+    </main>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</body>
+
+{% endblock %}
