@@ -58,17 +58,6 @@ def common_words(request):
     return render(request, 'commonwords.html')
 
 
-def db_conn():
-    connection = psycopg2.connect(
-        database='psluudsc',
-        user='psluudsc',
-        password='r9uHmYmtrSQPTvAfQhW17tSb9UfnO2gi',
-        host='batyr.db.elephantsql.com',
-        port='5432')
-    return connection
-
-
-
 def display_common_words(request):
     fig = Figure()
 
@@ -77,7 +66,7 @@ def display_common_words(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
-    close_old_connections()
+    '''close_old_connections()
     for conn in connections.all():
         conn.close()
     conn = db_conn()
@@ -85,6 +74,13 @@ def display_common_words(request):
     db_post = pd.read_sql_query(sql, conn)
     conn.close()
     close_old_connections()
+    '''
+
+    for conn in connections.all():
+        conn.close()
+    db_post = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    for conn in connections.all():
+        conn.close()
 
     #after db connection these two lines are useless
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
@@ -175,12 +171,20 @@ def cooccurance_words(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
+    '''
     close_old_connections()
     conn = db_conn()
     sql = f"SELECT content FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     df = pd.read_sql_query(sql, conn)
     conn.close()
     close_old_connections()
+    '''
+
+    for conn in connections.all():
+        conn.close()
+    df = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    for conn in connections.all():
+        conn.close()
 
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #df = pd.read_csv(data_file, engine='python')
@@ -227,16 +231,26 @@ def sentiment_graph(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
+    '''
     close_old_connections()
     conn = db_conn()
     sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     df = pd.read_sql_query(sql, conn)
     conn.close()
     close_old_connections()
+    '''
+
+    for conn in connections.all():
+        conn.close()
+    df = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    for conn in connections.all():
+        conn.close()
 
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #df = pd.read_csv(data_file, engine='python')
 
+    # sentiment is calculated in get_reviews
+    '''
     for index, row in df.iterrows():
         text = row['content']
         #print(index, text)
@@ -261,7 +275,7 @@ def sentiment_graph(request):
             df.at[index,'sentiment'] = 'Negative'
         else:
             df.at[index,'sentiment'] = 'Neutral'
-    
+    '''    
 
     file2 = df['sentiment'].values
 
@@ -301,16 +315,25 @@ def positive_df(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
+    '''
     close_old_connections()
     conn = db_conn()
     sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     df = pd.read_sql_query(sql, conn)
     conn.close()
     close_old_connections()
+    '''
+
+    for conn in connections.all():
+        conn.close()
+    df = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    for conn in connections.all():
+        conn.close()
 
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #df = pd.read_csv(data_file, engine='python')
 
+    '''
     for index, row in df.iterrows():
         text = row['content']
         #print(index, text)
@@ -335,6 +358,7 @@ def positive_df(request):
             df.at[index,'sentiment'] = 'Negative'
         else:
             df.at[index,'sentiment'] = 'Neutral'
+    '''
     
     pos_df = df.sort_values(by=['avg_polarity'], ascending=False).head(5)
 
@@ -353,16 +377,24 @@ def negative_df(request):
     product_id_url = user_url_base[5]
 
     # get reviews from db
+    '''
     close_old_connections()
     conn = db_conn()
     sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     df = pd.read_sql_query(sql, conn)
     conn.close()
     close_old_connections()
+    '''
+
+    for conn in connections.all():
+        conn.close()
+    df = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    for conn in connections.all():
+        conn.close()
 
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #df = pd.read_csv(data_file, engine='python')
-
+    '''
     for index, row in df.iterrows():
         text = row['content']
         #print(index, text)
@@ -387,6 +419,7 @@ def negative_df(request):
             df.at[index,'sentiment'] = 'Negative'
         else:
             df.at[index,'sentiment'] = 'Neutral'
+    '''
     
     neg_df_before = df.sort_values(by=['avg_polarity'], ascending=False).tail(5)
 
@@ -406,28 +439,42 @@ def sentiment_all(request):
     return render(request, "sentiment.html", {'p': pos_context,'n': neg_context})
 
 
-def is_valid_queryparam(param):
-    return param != '' and param is not None
-
-
 def filter(request):
+    for conn in connections.all():
+        conn.close()
     qs = ReviewTable.objects.all()
+    for conn in connections.all():
+        conn.close()
     title_contains_query = request.GET.get('content')
     verified = request.GET.get('verified')
     not_verified = request.GET.get('notVerified')
 
     if title_contains_query != '' and title_contains_query is not None:
+        for conn in connections.all():
+            conn.close()
         qs = qs.filter(content__icontains=title_contains_query)
+        for conn in connections.all():
+            conn.close()
 
     if verified == 'on':
+        for conn in connections.all():
+            conn.close()
         qs = qs.filter(verified='Yes')
+        for conn in connections.all():
+            conn.close()
     elif not_verified == 'on':
+        for conn in connections.all():
+            conn.close()
         qs = qs.filter(verified='No')
+        for conn in connections.all():
+            conn.close()
 
     return qs
 
 def FilterView(request):
     qs = filter(request)
+    for conn in connections.all():
+        conn.close()
     if qs:
         total_counter = len(qs)
         total_polarity = qs.aggregate(Sum('avg_polarity'))
@@ -448,5 +495,8 @@ def FilterView(request):
         'total_count': total_counter,
         'sentiment': sentiment
     }
+
+    for conn in connections.all():
+        conn.close()
 
     return render(request, "filtering.html", context)
