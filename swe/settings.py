@@ -100,10 +100,10 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'psluudsc',
-        'USER': 'psluudsc',
-        'PASSWORD': 'r9uHmYmtrSQPTvAfQhW17tSb9UfnO2gi',
-        'HOST': 'batyr.db.elephantsql.com',
+        'NAME': 'htckzuke',
+        'USER': 'htckzuke',
+        'PASSWORD': 'GBnTkMH3tqTkUcg-SBilkh7XCkX1RZ4V',
+        'HOST': 'tai.db.elephantsql.com',
         'PORT': '5432'
     }
 }

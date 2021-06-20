@@ -85,7 +85,9 @@ def display_common_words(request):
     #after db connection these two lines are useless
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #db_post = pd.read_csv(data_file, engine='python')
-    text_list = db_post['content'].tolist()
+    #text_list = db_post['content'].tolist()
+
+    text_list = db_post.values_list('content', flat=True)
 
     my_string = ''
     for element in text_list:
@@ -142,6 +144,8 @@ def display_common_words(request):
     plt.close(fig)
 
     response = HttpResponse(buf.getvalue(), content_type='image/png')
+    for conn in connections.all():
+        conn.close()
     return response
 
 
@@ -188,7 +192,9 @@ def cooccurance_words(request):
 
     #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
     #df = pd.read_csv(data_file, engine='python')
-    posts = df['content'].values
+    #posts = df['content'].values
+
+    posts = df.values_list('content', flat=True)
 
     new_post = ''
     words = ''
@@ -221,6 +227,8 @@ def cooccurance_words(request):
     post_dict = {
         "post_title_data": sorted_dict
     }
+    for conn in connections.all():
+        conn.close()
 
     return render(request, "occurance.html", post_dict)
 
@@ -277,7 +285,8 @@ def sentiment_graph(request):
             df.at[index,'sentiment'] = 'Neutral'
     '''    
 
-    file2 = df['sentiment'].values
+    #file2 = df['sentiment'].values
+    file2 = df.values_list('sentiment', flat=True)
 
     pos_count = 0
     neg_count = 0
@@ -306,6 +315,8 @@ def sentiment_graph(request):
     # plt.close(fig)
 
     response = HttpResponse(buf.getvalue(), content_type='image/png')
+    for conn in connections.all():
+        conn.close()
     return response
 
 
@@ -326,7 +337,7 @@ def positive_df(request):
 
     for conn in connections.all():
         conn.close()
-    df = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    data = ReviewTable.objects.filter(product_id=product_id_url).order_by('-avg_polarity')[:5]
     for conn in connections.all():
         conn.close()
 
@@ -360,14 +371,14 @@ def positive_df(request):
             df.at[index,'sentiment'] = 'Neutral'
     '''
     
-    pos_df = df.sort_values(by=['avg_polarity'], ascending=False).head(5)
+    #pos_df = df.sort_values(by=['avg_polarity'], ascending=False).head(5)
+    #data = df.order_by('-avg_polarity')[:5]
 
     # parsing the DataFrame in json format.
-    json_records = pos_df.reset_index().to_json(orient ='records')
-    data = []
-    data = json.loads(json_records)
+    #json_records = pos_df.reset_index().to_json(orient ='records')
+    #data = []
+    #data = json.loads(json_records)
     
-    #return HttpResponse(pos_df.to_html())
     return data
 
 
@@ -388,7 +399,7 @@ def negative_df(request):
 
     for conn in connections.all():
         conn.close()
-    df = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    data = ReviewTable.objects.filter(product_id=product_id_url).order_by('avg_polarity')[:5]
     for conn in connections.all():
         conn.close()
 
@@ -421,21 +432,26 @@ def negative_df(request):
             df.at[index,'sentiment'] = 'Neutral'
     '''
     
-    neg_df_before = df.sort_values(by=['avg_polarity'], ascending=False).tail(5)
+    #neg_df_before = df.sort_values(by=['avg_polarity'], ascending=False).tail(5)
+    #data = df.order_by('avg_polarity')[:5]
 
     # parsing the DataFrame in json format.
-    neg_df = neg_df_before.sort_values(by=['avg_polarity'])
-    json_records = neg_df.reset_index().to_json(orient ='records')
-    data = []
-    data = json.loads(json_records)
+    #neg_df = neg_df_before.sort_values(by=['avg_polarity'])
+    #json_records = neg_df.reset_index().to_json(orient ='records')
+    #data = []
+    #data = json.loads(json_records)
     
     #return HttpResponse(neg_df.to_html())
     return data
 
 
 def sentiment_all(request):
+    for conn in connections.all():
+        conn.close()
     neg_context = negative_df(request)
     pos_context = positive_df(request)
+    for conn in connections.all():
+        conn.close()
     return render(request, "sentiment.html", {'p': pos_context,'n': neg_context})
 
 
@@ -448,11 +464,19 @@ def filter(request):
     title_contains_query = request.GET.get('content')
     verified = request.GET.get('verified')
     not_verified = request.GET.get('notVerified')
+    product_name = request.GET.get('url')
 
     if title_contains_query != '' and title_contains_query is not None:
         for conn in connections.all():
             conn.close()
         qs = qs.filter(content__icontains=title_contains_query)
+        for conn in connections.all():
+            conn.close()
+
+    if product_name != '' and product_name is not None:
+        for conn in connections.all():
+            conn.close()
+        qs = qs.filter(url__icontains=product_name)
         for conn in connections.all():
             conn.close()
 
