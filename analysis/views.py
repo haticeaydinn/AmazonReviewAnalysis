@@ -23,6 +23,7 @@ from django_q.tasks import async_task
 import psycopg2
 from django.db.models import Sum
 from django.db import close_old_connections
+from django.db import connections
 
 # Create your views here.
 def index(request):
@@ -40,8 +41,12 @@ def index(request):
             print("Data collection is starting!")
             # async_task(write_table_v1, text, user, s_id, date)
             #get_product_reviews(amazonurl)
-            close_old_connections()
-            async_task(get_product_reviews, amazonurl) 
+            #close_old_connections()
+            for conn in connections.all():
+                conn.close()
+            async_task(get_product_reviews, amazonurl)
+            for conn in connections.all():
+                conn.close()
             print("Data collection is done!")
 
         return render(request, 'index.html', context)
@@ -73,6 +78,8 @@ def display_common_words(request):
 
     # get reviews from db
     close_old_connections()
+    for conn in connections.all():
+        conn.close()
     conn = db_conn()
     sql = f"SELECT content FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
     db_post = pd.read_sql_query(sql, conn)

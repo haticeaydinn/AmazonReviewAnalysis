@@ -7,6 +7,7 @@ from dateutil import parser as dateparser
 import emoji
 from .models import ReviewTable
 from textblob import TextBlob
+from django.db import connections
 
 
 def scrape(url):    
@@ -119,6 +120,8 @@ def get_product_reviews(url_example):
                         a_review.sentiment = 'Neutral'
 
                     a_review.save()
+    for conn in connections.all():
+        conn.close()
 
 
 def get_product_reviews_csv(url_example):
