@@ -6,11 +6,12 @@
     <main role="main" class="container">
 
       <h3>Filter Product Reviews</h3>
+      <h6>You can search for any reviews. Click the buttons below and see the analysis.</h6>
       <form method="GET" action=".">
         <div class="form-row">
             <div class="form-group col-12">
                 <div class="input-group">
-                    <input class="form-control py-2 border-right-0 border" type="search" name="content" placeholder="Content contains..." />
+                    <input class="form-control py-2 border-right-0 border" type="search" name="content" placeholder="Review text contains..." />
                     <span class="input-group-append">
                         <div class="input-group-text bg-transparent">
                             <i class="fa fa-search"></i>
@@ -19,18 +20,17 @@
                 </div>
             </div>        
         </div>
-        <div class="form-row">
-          <div class="form-group col-12">
-              <div class="input-group">
-                  <input class="form-control py-2 border-right-0 border" type="search" name="url" placeholder="Product name contains..." />
-                  <span class="input-group-append">
-                      <div class="input-group-text bg-transparent">
-                          <i class="fa fa-search"></i>
-                      </div>
-                  </span>
-              </div>
-          </div>        
-      </div>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Product: </label>
+          </div>
+          <select class="custom-select" id="inputGroupSelect01" name="item_id">
+            <option selected>Choose</option>
+              {% for entry in products %}
+              <option value = "B00014GT8W" >{{ entry.title }}</option>
+              {% endfor %}     
+          </select>
+        </div>
         <div class="form-group">
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="verified" name="verified">
@@ -57,10 +57,10 @@
         <table class="table table-dark table-striped">
             <thead>
               <tr>
-                <th>Product URL</th>
-                <th>Title</th>
-                <th>Review</th>
+                <th>Product Name</th>
                 <th>Date</th>
+                <th>Review Title</th>
+                <th>Review Text</th>
                 <th>Verified</th>
                 <th>Polarity Rating</th>
               </tr>
@@ -70,10 +70,10 @@
             {% if queryset %}  
             {% for i in queryset %}
               <tr>
-                <td>{{i.url}}</td>
-                <td>{{i.title}}</td>
-                <td>{{i.content}}</td>
-                <td>{{i.date}}</td>
+                <td>{{i.asin}}</td>
+                <td>{{i.unixReviewTime}}</td>
+                <td>{{i.summary}}</td>
+                <td>{{i.reviewText}}</td>
                 <td>{{i.verified}}</td>
                 <td>{{i.avg_polarity}}</td>
               </tr>

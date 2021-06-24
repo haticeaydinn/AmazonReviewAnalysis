@@ -18,7 +18,7 @@ import os
 import re
 from textblob import TextBlob
 import json
-from .models import ReviewTable, ConsecutiveWordsTable
+from .models import ReviewTableNew, ProductTable
 from django_q.tasks import async_task
 import psycopg2
 from django.db.models import Sum
@@ -458,38 +458,39 @@ def sentiment_all(request):
 def filter(request):
     for conn in connections.all():
         conn.close()
-    qs = ReviewTable.objects.all()
+    qs = ReviewTableNew.objects.all()
     for conn in connections.all():
         conn.close()
     title_contains_query = request.GET.get('content')
     verified = request.GET.get('verified')
     not_verified = request.GET.get('notVerified')
-    product_name = request.GET.get('url')
+    prod_id = request.GET.get('item_id')
 
     if title_contains_query != '' and title_contains_query is not None:
         for conn in connections.all():
             conn.close()
-        qs = qs.filter(content__icontains=title_contains_query)
+        qs = qs.filter(reviewText__icontains=title_contains_query)
         for conn in connections.all():
             conn.close()
 
-    if product_name != '' and product_name is not None:
+    if prod_id != '' and prod_id is not None and prod_id != 'Choose':
         for conn in connections.all():
             conn.close()
-        qs = qs.filter(url__icontains=product_name)
+        qs = qs.filter(asin=prod_id)
         for conn in connections.all():
             conn.close()
+
 
     if verified == 'on':
         for conn in connections.all():
             conn.close()
-        qs = qs.filter(verified='Yes')
+        qs = qs.filter(verified='True')
         for conn in connections.all():
             conn.close()
     elif not_verified == 'on':
         for conn in connections.all():
             conn.close()
-        qs = qs.filter(verified='No')
+        qs = qs.filter(verified='False')
         for conn in connections.all():
             conn.close()
 
@@ -514,10 +515,12 @@ def FilterView(request):
     else:
         total_counter = 0
         sentiment = 'No info!'
+    products = ProductTable.objects.all().values('title')
     context = {
         'queryset': qs,
         'total_count': total_counter,
-        'sentiment': sentiment
+        'sentiment': sentiment,
+        'products': products
     }
 
     for conn in connections.all():
