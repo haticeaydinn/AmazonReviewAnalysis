@@ -3,7 +3,7 @@
 {% block content %}
 
 <body>
-    <main role="main" class="container">
+    <div class="container">
 
       <h3>Filter Product Reviews</h3>
       <h6>You can search for any reviews. Click the buttons below and see the analysis.</h6>
@@ -27,7 +27,7 @@
           <select class="custom-select" id="inputGroupSelect01" name="item_id">
             <option selected>Choose</option>
               {% for entry in products %}
-              <option value = "B00014GT8W" >{{ entry.title }}</option>
+              <option value = "{{ entry.asin }}" >{{ entry.title }}</option>
               {% endfor %}     
           </select>
         </div>
@@ -51,39 +51,52 @@
       </form>
 
       <hr />
+    </div>
 
-      <div class="row">
-        <h6>Total reviews for this filtering: {{ total_count }}. {{ sentiment }}</h6>
-        <table class="table table-dark table-striped">
-            <thead>
-              <tr>
-                <th>Product Name</th>
-                <th>Date</th>
-                <th>Review Title</th>
-                <th>Review Text</th>
-                <th>Verified</th>
-                <th>Polarity Rating</th>
-              </tr>
-            </thead>
-            <tbody>
-            <!-- jinja2 Technique -->
-            {% if queryset %}  
-            {% for i in queryset %}
-              <tr>
-                <td>{{i.asin}}</td>
-                <td>{{i.unixReviewTime}}</td>
-                <td>{{i.summary}}</td>
-                <td>{{i.reviewText}}</td>
-                <td>{{i.verified}}</td>
-                <td>{{i.avg_polarity}}</td>
-              </tr>
-            {% endfor %}
-            {% endif %}
-            </tbody>
-          </table>
+    <div class="container">
+      <div class="row justify-content-start">
+        <div class="col-sm-3">
+          <div class="card" style="width: 18rem;">
+            <img src="{{ product_img_url }}" class="card-img-top" alt="..." width="300" height="300">
+            <div class="card-body">
+              <h5 class="card-title">{{ product_name }}</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <a href="{{ product_amazon_url }}" class="btn btn-primary">Go to Amazon and see the product page</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-9">
+          <h6 style="text-align:center">Total reviews for this filtering: {{ total_count }}. {{ sentiment }}</h6>
+          <table class="table table-dark table-striped">
+              <thead>
+                <tr>
+                  <th>Product Id</th>
+                  <th>Date</th>
+                  <th>Review Title</th>
+                  <th>Review Text</th>
+                  <th>Verified</th>
+                  <th>Polarity Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+              <!-- jinja2 Technique -->
+              {% if queryset %}  
+              {% for i in queryset %}
+                <tr>
+                  <td>{{i.asin}}</td>
+                  <td>{{i.unixReviewTime}}</td>
+                  <td>{{i.summary}}</td>
+                  <td>{{i.reviewText}}</td>
+                  <td>{{i.verified}}</td>
+                  <td>{{i.avg_polarity}}</td>
+                </tr>
+              {% endfor %}
+              {% endif %}
+              </tbody>
+            </table>
+        </div>
       </div>
-
-    </main>
+    </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>

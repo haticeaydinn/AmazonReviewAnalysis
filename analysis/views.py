@@ -515,12 +515,31 @@ def FilterView(request):
     else:
         total_counter = 0
         sentiment = 'No info!'
-    products = ProductTable.objects.all().values('title')
+    #products = ProductTable.objects.all().values('title')
+    products = ProductTable.objects.all()
+    prod_id = request.GET.get('item_id')
+    if prod_id != '' and prod_id is not None and prod_id != 'Choose':
+        product_name_list = ProductTable.objects.filter(asin=prod_id).values_list('title', flat = True)
+        product_name_str = list(product_name_list)[0]
+        product_name = 'Product name is ' + str(product_name_str)
+        product_img_url_qs = ProductTable.objects.filter(asin=prod_id).values_list('imageURLHighRes', flat = True)
+        product_img_url_list = list(product_img_url_qs)[0]
+        product_img_url = str(product_img_url_list)[2:-2]
+        product_amazon_url_list = ProductTable.objects.filter(asin=prod_id).values_list('asin', flat = True)
+        product_amazon_url_str = list(product_amazon_url_list)[0]
+        product_amazon_url = 'https://www.amazon.com/dp/' + str(product_amazon_url_str)
+    else:
+        product_name = 'No product is searched yet!'
+        product_img_url = 'http://toolsandtoys.net/wp-content/uploads/2016/07/Canopy-hero.jpg'
+        product_amazon_url = 'https://www.amazon.com'
     context = {
         'queryset': qs,
         'total_count': total_counter,
         'sentiment': sentiment,
-        'products': products
+        'products': products,
+        'product_img_url': product_img_url,
+        'product_name': product_name,
+        'product_amazon_url': product_amazon_url
     }
 
     for conn in connections.all():
