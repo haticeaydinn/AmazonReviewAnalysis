@@ -3,7 +3,8 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.index),
+    path('', views.welcome),
+    path('search/', views.index),
     path('commonwords/', views.common_words),
     path('displaycommonwords/', views.display_common_words),
     path('cooccurance/', views.cooccurance_words_view),

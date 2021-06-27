@@ -27,6 +27,10 @@ from django.db import close_old_connections
 from django.db import connections
 
 # Create your views here.
+def welcome(request):
+    return render(request, 'welcome.html')
+
+
 def index(request):
     #return HttpResponse('Enter comments URL from Amazon.com: ')
     #amazonurl= request.POST.get('Amazonurl')
