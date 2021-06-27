@@ -37,25 +37,31 @@ def index(request):
     prod_id = request.POST.get('item_id')
     submitbutton= request.POST.get('Submit')
     products = ProductTable.objects.all()
-    context= {'prod_id': prod_id, 'products': products, 'submitbutton': submitbutton}
     global val
     def val():
         return prod_id
 
     try:
-        if request.method =='POST':
-            # get 1000 reviews from amazon
-            print("Data collection is starting!")
-            # async_task(write_table_v1, text, user, s_id, date)
-            #get_product_reviews(amazonurl)
-            #close_old_connections()
-            for conn in connections.all():
-                conn.close()
-            #async_task(get_product_reviews, amazonurl)
-            for conn in connections.all():
-                conn.close()
-            print("Data collection is done!")
-
+        for conn in connections.all():
+            conn.close()
+        if prod_id != '' and prod_id is not None and prod_id != 'Choose':
+            product_name_list = ProductTable.objects.filter(asin=prod_id).values_list('title', flat = True)
+            product_name_str = list(product_name_list)[0]
+            product_name = str(product_name_str)
+            product_img_url_qs = ProductTable.objects.filter(asin=prod_id).values_list('imageURLHighRes', flat = True)
+            product_img_url_list = list(product_img_url_qs)[0]
+            product_img_url = str(product_img_url_list)[2:-2]
+            product_amazon_url_list = ProductTable.objects.filter(asin=prod_id).values_list('asin', flat = True)
+            product_amazon_url_str = list(product_amazon_url_list)[0]
+            product_amazon_url = 'https://www.amazon.com/dp/' + str(product_amazon_url_str)
+            context= {'product_name': product_name, 'product_amazon_url': product_amazon_url, 'product_img_url': product_img_url, 'products': products, 'submitbutton': submitbutton}
+        else:
+            product_name = 'No product is searched yet!'
+            product_img_url = 'http://toolsandtoys.net/wp-content/uploads/2016/07/Canopy-hero.jpg'
+            product_amazon_url = 'https://www.amazon.com'
+            context= {'product_name': product_name, 'product_amazon_url': product_amazon_url, 'product_img_url': product_img_url, 'products': products, 'submitbutton': submitbutton}
+        for conn in connections.all():
+            conn.close()
         return render(request, 'index.html', context)
     except psycopg2.OperationalError:
         error_message = "There are lots of connection to db right now. Please contact to administrator or send an email to 'hatice3178@yahoo.com.tr'. Thank you!"

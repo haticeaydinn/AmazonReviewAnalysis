@@ -10,9 +10,14 @@
   <div class="container p-4 mb-4 my-3">
     <form action="" method="POST">
       {% csrf_token %}
-      <h6>Go to Amazon.com and search for a product!</h6>
-      <br>
-      </br>
+      <h3>ANALYZE REVIEWS</h3>
+      <img class="d-block w-100" width="100" height="300" src="https://cdn.analyticsvidhya.com/wp-content/uploads/2018/07/performing-twitter-sentiment-analysis1.jpg" alt="Los Angeles">
+      <h6>You can select one of the products below. After the submission, you will see 3 different analyzing type:</h6><br>
+      <ul>
+        <li>1. Most used words: We will count all the words in the reviews and choose 10 words. These 10 words are the most frequently used and repeated words in the customer reviews.</li>
+        <li>2. Bigram words graph: A 2-gram (which we’ll call bigram) is a two-word sequence of words like “higly recommend”, “love quality”, or ”bad smell”. You can see 20 most frequent 2-words pairs in a graph.</li>
+        <li>3. Sentiment analysis: Customers might have positive, neutral or negative ideas about the product. We will analyze every reviews and give them an average polarity score. You can see the sentiment percentage and most positive/most negative 5 reviews. Note that when we calculate the polarity, we'll ignore neutral sentences. </li>
+      </ul>
       <div class="input-group mb-3">
         <div class="input-group-prepend">
           <label class="input-group-text" for="inputGroupSelect01">Choose one of the Amazon products: </label>
@@ -29,10 +34,28 @@
   
     {% if submitbutton == "Submit"  %}
       <br>
-      <h3> Your product id {{ prod_id }} </h3>
-      <a class="btn btn-outline-dark" href="/analysis/commonwords" role="button">Click here to see the most common 10 words!</a>
-      <a class="btn btn-outline-dark" href="/analysis/cooccurance" role="button">Click here to see the cooccurance diagram!</a>
-      <a class="btn btn-outline-dark" href="/analysis/sentimentall" role="button">Click here to see sentiment analysis!</a>
+      <div class="container">
+        <div class="row justify-content-start">
+          <div class="col-sm-3">
+            <div class="card" style="width: 18rem;">
+              <img src="{{ product_img_url }}" class="card-img-top" alt="..." width="100" height="100">
+              <div class="card-body">
+                <h5 class="card-title">{{ product_name }}</h5>
+                <p class="card-text">A product which belongs to Luxury Beauty!</p>
+                <a href="{{ product_amazon_url }}" class="btn btn-primary">Go to Amazon's website and see the product page</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-8">
+            <br>
+            <ul>
+              <li><a class="btn btn-outline-dark" href="/analysis/commonwords" role="button">Click here to see the most used 10 words</a></li><br>
+              <li><a class="btn btn-outline-dark" href="/analysis/cooccurance" role="button">Click here to see the bigram words graph!</a></li><br>
+              <li><a class="btn btn-outline-dark" href="/analysis/sentimentall" role="button">Click here to see sentiment analysis!</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
     {% endif %}
   </div>
 </body>
