@@ -2,24 +2,11 @@
 
 {% block content %}
 
-<table class="table table-striped">
-    <thead>
-      <tr>
-        <th>First Word</th>
-      </tr>
-    </thead>
-    <tbody>
-    <!-- jinja2 Technique -->
-    {% if post_title_data %}  
-    {% for data in post_title_data %}
-    {% for words in post_title_data %}
-      <tr>
-        <td>{{ words }}</td>
-      </tr>
-    {% endfor %}
-    {% endfor %}
-    {% endif %}
-    </tbody>
-  </table>
+<body>
+    <div class="container p-4 mb-4 my-3">
+        <h3> Bigram Diagram </h3>
+        <img src='/analysis/cooccurance_words' class="card-img-top" alt="...">
+    </div>
+</body>
 
 {% endblock %}

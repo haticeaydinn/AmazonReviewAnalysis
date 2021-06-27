@@ -188,13 +188,45 @@ def cooccurance_words(request):
 
     sorted_dict = sorted(element_dict.items(), key=lambda x: x[1], reverse=True)[0:20]
 
-    post_dict = {
-        "post_title_data": sorted_dict
-    }
+    bigram_word_list = []
+    freq_list = []
+    for data,freq in sorted_dict:
+        bigram_words = data[0] + " " + data[1]
+        bigram_word_list.append(bigram_words)
+        freq_list.append(freq)
+
+    fig = Figure()
+    plt.switch_backend('agg')
+
+    f, ax = plt.subplots(figsize=(15, 10))  # set the size that you'd like (width, height)
+
+    Words = bigram_word_list
+    Freq = freq_list
+
+    plt.style.use('ggplot')
+
+    for i, v in enumerate(Freq):
+        plt.text(v, i, " "+str(v), color='blue', va='center', fontweight='bold')
+
+    plt.barh(Words, Freq)
+    plt.title('Bigram Words Graph')
+    plt.ylabel('Words Group')
+    plt.xlabel('Frequency')
+    
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    plt.close(fig)
+
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
     for conn in connections.all():
         conn.close()
+    return response
 
-    return render(request, "occurance.html", post_dict)
+    #return render(request, "occurance.html", post_dict)
+
+
+def cooccurance_words_view(request):
+    return render(request, 'occurance.html')
 
 
 def sentiment_graph(request):
