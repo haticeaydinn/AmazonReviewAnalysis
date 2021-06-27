@@ -5,6 +5,9 @@
 <body>
     <div class="container p-3 mb-3 my-2">
         <h3> Total Average Sentiment Analysis Graph </h3>
+        Wait for a second! We're preparing sentiment analysis. For now, we're processing {{ reviews_no }} reviews for the product {{ prod_name }}.<br>
+        The closer 'Polarity Rate' is to 1, the more likely it is to be a positive review.<br>
+        On the other hand, the closer 'Polarity Rate' is to -1, the more likely it is to be a negative review. 
         <img src='/analysis/sentimentgraph' class="card-img-top" alt="" height="500">
     </div>
 
@@ -18,6 +21,8 @@
               <th>Created Date</th>
               <th>Verified</th>
               <th>Polarity Rating</th>
+              <th>Positive Sentence Rate</th>
+              <th>Negative Sentence Rate</th>
             </tr>
           </thead>
           <tbody>
@@ -30,6 +35,8 @@
               <td>{{i.unixReviewTime}}</td>
               <td>{{i.verified}}</td>
               <td>{{i.avg_polarity}}</td>
+              <td>{{i.pos_sentence_rate}}</td>
+              <td>{{i.neg_sentence_rate}}</td>
             </tr>
           {% endfor %}
           {% endif %}
@@ -47,6 +54,8 @@
                 <th>Created Date</th>
                 <th>Verified</th>
                 <th>Polarity Rating</th>
+                <th>Positive Sentence Rate</th>
+                <th>Negative Sentence Rate</th>
               </tr>
             </thead>
             <tbody>
@@ -59,6 +68,8 @@
                 <td>{{i.unixReviewTime}}</td>
                 <td>{{i.verified}}</td>
                 <td>{{i.avg_polarity}}</td>
+                <td>{{i.pos_sentence_rate}}</td>
+                <td>{{i.neg_sentence_rate}}</td>
             </tr>
           {% endfor %}
           {% endif %}

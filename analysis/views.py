@@ -332,7 +332,21 @@ def sentiment_all(request):
     pos_context = positive_df(request)
     for conn in connections.all():
         conn.close()
-    return render(request, "sentiment.html", {'p': pos_context,'n': neg_context})
+    
+    product_id = val()
+    rev_qs = ReviewTableNew.objects.filter(asin=product_id)
+    reviews_no = len(rev_qs)
+    product_name_list = ProductTable.objects.filter(asin=product_id).values_list('title', flat = True)
+    product_name_str = list(product_name_list)[0]
+    product_name = str(product_name_str)
+
+    context = {
+        'reviews_no': reviews_no,
+        'prod_name': product_name,
+        'p': pos_context,
+        'n': neg_context
+    }
+    return render(request, "sentiment.html", context)
 
 
 def filter(request):
