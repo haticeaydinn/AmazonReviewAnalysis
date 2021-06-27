@@ -54,12 +54,15 @@ def index(request):
             product_amazon_url_list = ProductTable.objects.filter(asin=prod_id).values_list('asin', flat = True)
             product_amazon_url_str = list(product_amazon_url_list)[0]
             product_amazon_url = 'https://www.amazon.com/dp/' + str(product_amazon_url_str)
-            context= {'product_name': product_name, 'product_amazon_url': product_amazon_url, 'product_img_url': product_img_url, 'products': products, 'submitbutton': submitbutton}
+            qs = ReviewTableNew.objects.all()
+            qs = qs.filter(asin=prod_id)
+            total_counter = len(qs)
+            context= {'product_name': product_name, 'product_amazon_url': product_amazon_url, 'total_count': total_counter, 'product_img_url': product_img_url, 'products': products, 'submitbutton': submitbutton}
         else:
             product_name = 'No product is searched yet!'
             product_img_url = 'http://toolsandtoys.net/wp-content/uploads/2016/07/Canopy-hero.jpg'
             product_amazon_url = 'https://www.amazon.com'
-            context= {'product_name': product_name, 'product_amazon_url': product_amazon_url, 'product_img_url': product_img_url, 'products': products, 'submitbutton': submitbutton}
+            context= {'product_name': product_name, 'product_amazon_url': product_amazon_url, 'total_count': 'No info', 'product_img_url': product_img_url, 'products': products, 'submitbutton': submitbutton}
         for conn in connections.all():
             conn.close()
         return render(request, 'index.html', context)
