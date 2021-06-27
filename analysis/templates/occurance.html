@@ -5,16 +5,18 @@
 <table class="table table-striped">
     <thead>
       <tr>
-        <th>Two consecutive words & How many reviews</th>
+        <th>First Word</th>
       </tr>
     </thead>
     <tbody>
     <!-- jinja2 Technique -->
     {% if post_title_data %}  
     {% for data in post_title_data %}
+    {% for words in post_title_data %}
       <tr>
-        <td>{{ data }}</td>
+        <td>{{ words }}</td>
       </tr>
+    {% endfor %}
     {% endfor %}
     {% endif %}
     </tbody>

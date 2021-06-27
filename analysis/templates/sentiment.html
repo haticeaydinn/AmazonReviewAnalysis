@@ -13,9 +13,9 @@
         <table class="table table-dark table-striped">
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Review</th>
-              <th>Date</th>
+              <th>Title of Review</th>
+              <th>Review Content</th>
+              <th>Created Date</th>
               <th>Verified</th>
               <th>Polarity Rating</th>
             </tr>
@@ -25,9 +25,9 @@
           {% if p %}  
           {% for i in p %}
             <tr>
-              <td>{{i.title}}</td>
-              <td>{{i.content}}</td>
-              <td>{{i.date}}</td>
+              <td>{{i.summary}}</td>
+              <td>{{i.reviewText}}</td>
+              <td>{{i.unixReviewTime}}</td>
               <td>{{i.verified}}</td>
               <td>{{i.avg_polarity}}</td>
             </tr>
@@ -42,9 +42,9 @@
         <table class="table table-dark table-striped">
           <thead>
             <tr>
-                <th>Title</th>
-                <th>Review</th>
-                <th>Date</th>
+                <th>Title of Review</th>
+                <th>Review Content</th>
+                <th>Created Date</th>
                 <th>Verified</th>
                 <th>Polarity Rating</th>
               </tr>
@@ -54,9 +54,9 @@
             {% if n %}  
             {% for i in n %}
               <tr>
-                <td>{{i.title}}</td>
-                <td>{{i.content}}</td>
-                <td>{{i.date}}</td>
+                <td>{{i.summary}}</td>
+                <td>{{i.reviewText}}</td>
+                <td>{{i.unixReviewTime}}</td>
                 <td>{{i.verified}}</td>
                 <td>{{i.avg_polarity}}</td>
             </tr>

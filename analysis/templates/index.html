@@ -18,17 +18,25 @@
     <form action="" method="POST">
       {% csrf_token %}
       <h6>Go to Amazon.com and search for a product!</h6>
-      <h6>Example URL: </h6>
-      https://www.amazon.com/Apple-iPad-Air-10-9-inch-Wi-Fi-64GB/dp/B08J5WFP7B/ref=sr_1_3?dchild=1&keywords=ipad+10&qid=1624100392&sr=8-3
       <br>
       </br>
-      Amazon Product URL: <input type="text" name="Amazonurl" value= '{% if submitbutton == "Submit" %} {{ amazonurl }} {% endif %}'/><br><br>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="inputGroupSelect01">Choose one of the Amazon products: </label>
+        </div>
+        <select class="custom-select" id="inputGroupSelect01" name="item_id">
+          <option selected>Choose</option>
+            {% for entry in products %}
+            <option value = '{{ entry.asin }}' >{{ entry.title }}</option>
+            {% endfor %}     
+        </select>
+      </div>
       <input type="Submit" name="Submit" value="Submit"/>
     </form>
   
-    {% if submitbutton == "Submit"  %} 
-      <h6> Your URL is {{ amazonurl }} </h6>
-      <h3> We're collecting top 500 reviews for this product! Please wait for 5 minutes than click the links below: </h3>
+    {% if submitbutton == "Submit"  %}
+      <br>
+      <h3> Your product id {{ prod_id }} </h3>
       <a class="btn btn-outline-dark" href="/analysis/commonwords" role="button">Click here to see the most common 10 words!</a>
       <a class="btn btn-outline-dark" href="/analysis/cooccurance" role="button">Click here to see the cooccurance diagram!</a>
       <a class="btn btn-outline-dark" href="/analysis/sentimentall" role="button">Click here to see sentiment analysis!</a>

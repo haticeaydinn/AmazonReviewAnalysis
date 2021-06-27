@@ -9,6 +9,7 @@ nltk.download('wordnet')
 nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+from nltk.collocations import BigramCollocationFinder
 import matplotlib.pyplot as plt; plt.rcdefaults()
 from collections import Counter
 import string
@@ -28,12 +29,14 @@ from django.db import connections
 # Create your views here.
 def index(request):
     #return HttpResponse('Enter comments URL from Amazon.com: ')
-    amazonurl= request.POST.get('Amazonurl')
+    #amazonurl= request.POST.get('Amazonurl')
+    prod_id = request.POST.get('item_id')
     submitbutton= request.POST.get('Submit')
-    context= {'amazonurl': amazonurl, 'submitbutton': submitbutton}
+    products = ProductTable.objects.all()
+    context= {'prod_id': prod_id, 'products': products, 'submitbutton': submitbutton}
     global val
     def val():
-        return amazonurl
+        return prod_id
 
     try:
         if request.method =='POST':
@@ -44,7 +47,7 @@ def index(request):
             #close_old_connections()
             for conn in connections.all():
                 conn.close()
-            async_task(get_product_reviews, amazonurl)
+            #async_task(get_product_reviews, amazonurl)
             for conn in connections.all():
                 conn.close()
             print("Data collection is done!")
@@ -61,33 +64,16 @@ def common_words(request):
 def display_common_words(request):
     fig = Figure()
 
-    user_url = val()
-    user_url_base = user_url.split('/')
-    product_id_url = user_url_base[5]
-
-    # get reviews from db
-    '''close_old_connections()
+    product_id = val()
+    print(product_id)
+    
     for conn in connections.all():
         conn.close()
-    conn = db_conn()
-    sql = f"SELECT content FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
-    db_post = pd.read_sql_query(sql, conn)
-    conn.close()
-    close_old_connections()
-    '''
-
-    for conn in connections.all():
-        conn.close()
-    db_post = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    db_post = ReviewTableNew.objects.filter(asin=product_id)
     for conn in connections.all():
         conn.close()
 
-    #after db connection these two lines are useless
-    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    #db_post = pd.read_csv(data_file, engine='python')
-    #text_list = db_post['content'].tolist()
-
-    text_list = db_post.values_list('content', flat=True)
+    text_list = db_post.values_list('reviewText', flat=True)
 
     my_string = ''
     for element in text_list:
@@ -122,17 +108,13 @@ def display_common_words(request):
 
     plt.switch_backend('agg')
     f, ax = plt.subplots(figsize=(9, 4))  # set the size that you'd like (width, height)
-    # plt.bar(x_n, y_n)
-    # deneme
 
     ax.bar(x_n, y_n,width=0.4)
-    #Now the trick is here.
     #plt.text() , you need to give (x,y) location , where you want to put the numbers,
     #So here index will give you x pos and data+1 will provide a little gap in y axis.
     for index,data in enumerate(y_n):
         plt.text(x=index , y =data+0.2 , s=f"{data}" , fontdict=dict(fontsize=10))
 
-    # deneme son
     plt.xlabel('Words')
     plt.ylabel('Frequency')
     plt.title('Most Common Words')
@@ -170,37 +152,20 @@ def freq(input_string):
 
 
 def cooccurance_words(request):
-    user_url = val()
-    user_url_base = user_url.split('/')
-    product_id_url = user_url_base[5]
-
-    # get reviews from db
-    '''
-    close_old_connections()
-    conn = db_conn()
-    sql = f"SELECT content FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
-    df = pd.read_sql_query(sql, conn)
-    conn.close()
-    close_old_connections()
-    '''
+    product_id = val()
 
     for conn in connections.all():
         conn.close()
-    df = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    df = ReviewTableNew.objects.filter(asin=product_id)
     for conn in connections.all():
         conn.close()
 
-    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    #df = pd.read_csv(data_file, engine='python')
-    #posts = df['content'].values
-
-    posts = df.values_list('content', flat=True)
+    posts = df.values_list('reviewText', flat=True)
 
     new_post = ''
     words = ''
     for post in posts:
         post = re.sub('\s', ' ', post)
-        #print(post)
         new_post += post + ' '
         for token in word_tokenize(post):
             token = token.lower()
@@ -211,18 +176,17 @@ def cooccurance_words(request):
                 words += token + " "
         words += ". "
     
-    smt = freq(words)
+    #smt = freq(words)
+    finder = BigramCollocationFinder.from_words(word_tokenize(words))
+    #print(type(finder))
 
-    del_key_list=[]
-    for key in smt:
-        if "." in key:
-            #print(key)
-            del_key_list.append(key)
-            
-    for keys in del_key_list:
-        del smt[keys]
+    element_dict = {}
+    for k,v in finder.ngram_fd.items():
+        if "." not in k:
+            element_dict[k] = v
+    
 
-    sorted_dict = sorted(smt.items(), key=lambda x: x[1], reverse=True)[0:20]
+    sorted_dict = sorted(element_dict.items(), key=lambda x: x[1], reverse=True)[0:20]
 
     post_dict = {
         "post_title_data": sorted_dict
@@ -234,58 +198,14 @@ def cooccurance_words(request):
 
 
 def sentiment_graph(request):
-    user_url = val()
-    user_url_base = user_url.split('/')
-    product_id_url = user_url_base[5]
-
-    # get reviews from db
-    '''
-    close_old_connections()
-    conn = db_conn()
-    sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
-    df = pd.read_sql_query(sql, conn)
-    conn.close()
-    close_old_connections()
-    '''
+    product_id = val()
 
     for conn in connections.all():
         conn.close()
-    df = ReviewTable.objects.filter(product_id=product_id_url).order_by('-id')[:500]
+    df = ReviewTableNew.objects.filter(asin=product_id)
     for conn in connections.all():
         conn.close()
 
-    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    #df = pd.read_csv(data_file, engine='python')
-
-    # sentiment is calculated in get_reviews
-    '''
-    for index, row in df.iterrows():
-        text = row['content']
-        #print(index, text)
-        blob = TextBlob(text)
-        #print(len(blob.sentences))
-        
-        avg_pol = 0
-        avg_sentiment = 0
-        for sentence in blob.sentences:
-            #print(len(blob.sentences))
-            #print(sentence.sentiment.polarity)
-            avg_pol += sentence.sentiment.polarity
-        
-        avg_sentiment = avg_pol/len(blob.sentences)
-        #print(f'Average polarity: {avg_sentiment}')
-        
-        df.at[index,'avg_polarity'] = avg_sentiment
-        
-        if avg_sentiment > 0.0:
-            df.at[index,'sentiment'] = 'Positive'
-        elif avg_sentiment < 0.0:
-            df.at[index,'sentiment'] = 'Negative'
-        else:
-            df.at[index,'sentiment'] = 'Neutral'
-    '''    
-
-    #file2 = df['sentiment'].values
     file2 = df.values_list('sentiment', flat=True)
 
     pos_count = 0
@@ -321,127 +241,25 @@ def sentiment_graph(request):
 
 
 def positive_df(request):
-    user_url = val()
-    user_url_base = user_url.split('/')
-    product_id_url = user_url_base[5]
-
-    # get reviews from db
-    '''
-    close_old_connections()
-    conn = db_conn()
-    sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
-    df = pd.read_sql_query(sql, conn)
-    conn.close()
-    close_old_connections()
-    '''
+    product_id = val()
 
     for conn in connections.all():
         conn.close()
-    data = ReviewTable.objects.filter(product_id=product_id_url).order_by('-avg_polarity')[:5]
+    data = ReviewTableNew.objects.filter(asin=product_id).order_by('-avg_polarity')[:5]
     for conn in connections.all():
         conn.close()
-
-    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    #df = pd.read_csv(data_file, engine='python')
-
-    '''
-    for index, row in df.iterrows():
-        text = row['content']
-        #print(index, text)
-        blob = TextBlob(text)
-        #print(len(blob.sentences))
-        
-        avg_pol = 0
-        avg_sentiment = 0
-        for sentence in blob.sentences:
-            #print(len(blob.sentences))
-            #print(sentence.sentiment.polarity)
-            avg_pol += sentence.sentiment.polarity
-        
-        avg_sentiment = avg_pol/len(blob.sentences)
-        #print(f'Average polarity: {avg_sentiment}')
-        
-        df.at[index,'avg_polarity'] = avg_sentiment
-        
-        if avg_sentiment > 0.0:
-            df.at[index,'sentiment'] = 'Positive'
-        elif avg_sentiment < 0.0:
-            df.at[index,'sentiment'] = 'Negative'
-        else:
-            df.at[index,'sentiment'] = 'Neutral'
-    '''
-    
-    #pos_df = df.sort_values(by=['avg_polarity'], ascending=False).head(5)
-    #data = df.order_by('-avg_polarity')[:5]
-
-    # parsing the DataFrame in json format.
-    #json_records = pos_df.reset_index().to_json(orient ='records')
-    #data = []
-    #data = json.loads(json_records)
     
     return data
 
 
 def negative_df(request):
-    user_url = val()
-    user_url_base = user_url.split('/')
-    product_id_url = user_url_base[5]
-
-    # get reviews from db
-    '''
-    close_old_connections()
-    conn = db_conn()
-    sql = f"SELECT * FROM analysis_reviewtable WHERE product_id ='{product_id_url}' order by id desc LIMIT 500"
-    df = pd.read_sql_query(sql, conn)
-    conn.close()
-    close_old_connections()
-    '''
-
+    product_id = val()
+    
     for conn in connections.all():
         conn.close()
-    data = ReviewTable.objects.filter(product_id=product_id_url).order_by('avg_polarity')[:5]
+    data = ReviewTableNew.objects.filter(asin=product_id).order_by('avg_polarity')[:5]
     for conn in connections.all():
         conn.close()
-
-    #data_file = os.path.dirname(os.path.realpath(__file__)) + '/data.csv'
-    #df = pd.read_csv(data_file, engine='python')
-    '''
-    for index, row in df.iterrows():
-        text = row['content']
-        #print(index, text)
-        blob = TextBlob(text)
-        #print(len(blob.sentences))
-        
-        avg_pol = 0
-        avg_sentiment = 0
-        for sentence in blob.sentences:
-            #print(len(blob.sentences))
-            #print(sentence.sentiment.polarity)
-            avg_pol += sentence.sentiment.polarity
-        
-        avg_sentiment = avg_pol/len(blob.sentences)
-        #print(f'Average polarity: {avg_sentiment}')
-        
-        df.at[index,'avg_polarity'] = avg_sentiment
-        
-        if avg_sentiment > 0.0:
-            df.at[index,'sentiment'] = 'Positive'
-        elif avg_sentiment < 0.0:
-            df.at[index,'sentiment'] = 'Negative'
-        else:
-            df.at[index,'sentiment'] = 'Neutral'
-    '''
-    
-    #neg_df_before = df.sort_values(by=['avg_polarity'], ascending=False).tail(5)
-    #data = df.order_by('avg_polarity')[:5]
-
-    # parsing the DataFrame in json format.
-    #neg_df = neg_df_before.sort_values(by=['avg_polarity'])
-    #json_records = neg_df.reset_index().to_json(orient ='records')
-    #data = []
-    #data = json.loads(json_records)
-    
-    #return HttpResponse(neg_df.to_html())
     return data
 
 
