@@ -68,7 +68,12 @@ def index(request):
         return HttpResponse(error_message, content_type="text/plain")
 
 def common_words(request):
-    return render(request, 'commonwords.html')
+    prod_id = val()
+    product_name_list = ProductTable.objects.filter(asin=prod_id).values_list('title', flat = True)
+    product_name_str = list(product_name_list)[0]
+    product_name = str(product_name_str)
+    context= {'product_name': product_name}
+    return render(request, 'commonwords.html', context)
 
 
 def display_common_words(request):
