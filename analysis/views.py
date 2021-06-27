@@ -226,7 +226,19 @@ def cooccurance_words(request):
 
 
 def cooccurance_words_view(request):
-    return render(request, 'occurance.html')
+    product_id = val()
+    rev_qs = ReviewTableNew.objects.filter(asin=product_id)
+    reviews_no = len(rev_qs)
+    product_name_list = ProductTable.objects.filter(asin=product_id).values_list('title', flat = True)
+    product_name_str = list(product_name_list)[0]
+    product_name = str(product_name_str)
+
+    context = {
+        'reviews_no': reviews_no,
+        'prod_name': product_name
+    }
+    
+    return render(request, 'occurance.html', context)
 
 
 def sentiment_graph(request):
