@@ -25,6 +25,7 @@ import psycopg2
 from django.db.models import Sum
 from django.db import close_old_connections
 from django.db import connections
+import urllib, base64
 
 # Create your views here.
 def welcome(request):
@@ -71,18 +72,39 @@ def index(request):
         return HttpResponse(error_message, content_type="text/plain")
 
 def common_words(request):
-    prod_id = val()
-    product_name_list = ProductTable.objects.filter(asin=prod_id).values_list('title', flat = True)
-    product_name_str = list(product_name_list)[0]
-    product_name = str(product_name_str)
-    context= {'product_name': product_name}
-    return render(request, 'commonwords.html', context)
+    prod_id = request.POST.get('item_id')
+    submitbutton= request.POST.get('Submit')
+    products = ProductTable.objects.all()
+    try:
+        for conn in connections.all():
+            conn.close()
+        if prod_id != '' and prod_id is not None and prod_id != 'Choose':
+            product_name_list = ProductTable.objects.filter(asin=prod_id).values_list('title', flat = True)
+            product_name_str = list(product_name_list)[0]
+            product_name = str(product_name_str)
+            qs = ReviewTableNew.objects.all()
+            qs = qs.filter(asin=prod_id)
+            total_counter = len(qs)
+            cloud_uri= display_common_words(prod_id)
+            #product_img = display_common_words(request)
+            context= {'product_name': product_name, 'total_counter': total_counter, 'products': products, 'submitbutton': submitbutton, 'networkgraph':cloud_uri,}
+        else:
+            product_name = 'No product is searched yet!'
+            context= {'product_name': product_name, 'total_counter': 'No info', 'products': products, 'submitbutton': submitbutton}
+        for conn in connections.all():
+            conn.close()
+        return render(request, 'commonwords.html', context)
+    except psycopg2.OperationalError:
+        error_message = "There are lots of connection to db right now. Please contact to administrator or send an email to 'hatice3178@yahoo.com.tr'. Thank you!"
+        return HttpResponse(error_message, content_type="text/plain")
+    #return render(request, 'commonwords.html', context)
 
 
-def display_common_words(request):
+def display_common_words(product_asin):
+    import string
     fig = Figure()
 
-    product_id = val()
+    product_id = product_asin
     print(product_id)
     
     for conn in connections.all():
@@ -138,8 +160,8 @@ def display_common_words(request):
     plt.title('Most Common Words')
 
     # plt.savefig('example.png')
-
-    buf = io.BytesIO()
+    '''
+        buf = io.BytesIO()
     plt.savefig(buf, format='png')
     plt.close(fig)
 
@@ -147,26 +169,16 @@ def display_common_words(request):
     for conn in connections.all():
         conn.close()
     return response
-
-
-def freq(input_string):
     '''
-    This function is from https://stackoverflow.com/questions/33723089/how-to-get-consecutive-word-count-of-a-string-python
-    '''
-    freq = {}
-    words = input_string.split()
-    if len(words) == 1:
-        return freq
+    imgdata = io.BytesIO()
+    plt.savefig(imgdata, format='png', bbox_inches='tight')
+    imgdata.seek(0)
+    
+    string = base64.b64encode(imgdata.read())
+    uri = 'data:image/png;base64,' + urllib.parse.quote(string)
+    
+    return uri
 
-    for idx, word in enumerate(words):
-        if idx+1 < len(words):
-            word_pair = (word, words[idx+1])
-            if word_pair in freq:
-                freq[word_pair] += 1
-            else:
-                freq[word_pair] = 1
-
-    return freq
 
 
 def cooccurance_words(request):
