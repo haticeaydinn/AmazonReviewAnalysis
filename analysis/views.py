@@ -295,8 +295,9 @@ def cooccurance_words_view(request):
     #return render(request, 'occurance.html', context)
 
 
-def sentiment_graph(request):
-    product_id = val()
+def sentiment_graph(product_asin):
+    fig = Figure()
+    product_id = product_asin
 
     for conn in connections.all():
         conn.close()
@@ -328,44 +329,51 @@ def sentiment_graph(request):
             shadow=True, startangle=90, colors=colors)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    # plt.close(fig)
-
-    response = HttpResponse(buf.getvalue(), content_type='image/png')
-    for conn in connections.all():
-        conn.close()
-    return response
-
-
-def positive_df(request):
-    product_id = val()
-
-    for conn in connections.all():
-        conn.close()
-    data = ReviewTableNew.objects.filter(asin=product_id).order_by('-avg_polarity')[:5]
-    for conn in connections.all():
-        conn.close()
+    imgdata = io.BytesIO()
+    plt.savefig(imgdata, format='png', bbox_inches='tight')
+    imgdata.seek(0)
     
-    return data
-
-
-def negative_df(request):
-    product_id = val()
+    string = base64.b64encode(imgdata.read())
+    uri = 'data:image/png;base64,' + urllib.parse.quote(string)
     
-    for conn in connections.all():
-        conn.close()
-    data = ReviewTableNew.objects.filter(asin=product_id).order_by('avg_polarity')[:5]
-    for conn in connections.all():
-        conn.close()
-    return data
+    return uri
 
 
 def sentiment_all(request):
+    prod_id = request.POST.get('item_id')
+    submitbutton= request.POST.get('Submit')
+    products = ProductTable.objects.all()
+    try:
+        for conn in connections.all():
+            conn.close()
+        if prod_id != '' and prod_id is not None and prod_id != 'Choose':
+            product_name_list = ProductTable.objects.filter(asin=prod_id).values_list('title', flat = True)
+            product_name_str = list(product_name_list)[0]
+            product_name = str(product_name_str)
+            qs = ReviewTableNew.objects.filter(asin=prod_id)
+            total_counter = len(qs)
+            cloud_uri= sentiment_graph(prod_id)
+            neg_context = ReviewTableNew.objects.filter(asin=prod_id).order_by('avg_polarity')[:5]
+            pos_context = ReviewTableNew.objects.filter(asin=prod_id).order_by('-avg_polarity')[:5]
+            context= {
+                'product_name': product_name, 'total_counter': total_counter, 
+                'products': products, 'submitbutton': submitbutton, 'p': pos_context,
+                'n': neg_context, 'networkgraph':cloud_uri}
+        else:
+            product_name = 'No product is searched yet!'
+            context= {'product_name': product_name, 'total_counter': 'No info', 'products': products, 'submitbutton': submitbutton}
+        for conn in connections.all():
+            conn.close()
+        return render(request, 'sentiment.html', context)
+    except psycopg2.OperationalError:
+        error_message = "There are lots of connection to db right now. Please contact to administrator or send an email to 'hatice3178@yahoo.com.tr'. Thank you!"
+        return HttpResponse(error_message, content_type="text/plain")
+
+'''
     for conn in connections.all():
         conn.close()
-    neg_context = negative_df(request)
-    pos_context = positive_df(request)
+    neg_context = ReviewTableNew.objects.filter(asin=product_id).order_by('-avg_polarity')[:5]
+    pos_context = ReviewTableNew.objects.filter(asin=product_id).order_by('-avg_polarity')[:5]
     for conn in connections.all():
         conn.close()
     
@@ -383,7 +391,7 @@ def sentiment_all(request):
         'n': neg_context
     }
     return render(request, "sentiment.html", context)
-
+'''
 
 def filter(request):
     for conn in connections.all():

@@ -3,52 +3,44 @@
 {% block content %}
 
 <body>
-    <div class="container p-3 mb-3 my-2">
-        <h3> Total Average Sentiment Analysis Graph </h3>
-        Wait for a second! We're preparing sentiment analysis. For now, we're processing {{ reviews_no }} reviews for the product {{ prod_name }}.<br>
-        The closer 'Polarity Rate' is to 1, the more likely it is to be a positive review.<br>
-        On the other hand, the closer 'Polarity Rate' is to -1, the more likely it is to be a negative review. 
-        <img src='/analysis/sentimentgraph' class="card-img-top" alt="" height="500">
-    </div>
-
-    <div class="container">
-        <h2 class="text-center"><u>POSITIVE TOP 5</u></h2><br>            
-        <table class="table table-dark table-striped">
-          <thead>
-            <tr>
-              <th>Title of Review</th>
-              <th>Review Content</th>
-              <th>Created Date</th>
-              <th>Verified</th>
-              <th>Polarity Rating</th>
-              <th>Positive Sentence Rate</th>
-              <th>Negative Sentence Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-          <!-- jinja2 Technique -->
-          {% if p %}  
-          {% for i in p %}
-            <tr>
-              <td>{{i.summary}}</td>
-              <td>{{i.reviewText}}</td>
-              <td>{{i.unixReviewTime}}</td>
-              <td>{{i.verified}}</td>
-              <td>{{i.avg_polarity}}</td>
-              <td>{{i.pos_sentence_rate}}</td>
-              <td>{{i.neg_sentence_rate}}</td>
-            </tr>
-          {% endfor %}
-          {% endif %}
-          </tbody>
-        </table>
+  <div class="container p-4 mb-4 my-3">
+    <form action="" method="POST">
+      {% csrf_token %}
+      <h3>Sentiment Analysis</h3>
+      Do you interested in customers' reaction? If you want to know what they think about the product (positive/neutral/negative), just select one of the products and see the sentiment analysis for it!<br><br>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="inputGroupSelect01">Choose one of the Amazon products: </label>
+        </div>
+        <select class="custom-select" id="inputGroupSelect01" name="item_id">
+          <option selected>Choose</option>
+            {% for entry in products %}
+            <option value = '{{ entry.asin }}' >{{ entry.title }}</option>
+            {% endfor %}     
+        </select>
       </div>
+      <input type="Submit" name="Submit" value="Submit"/>
+    </form>
+    <hr />
 
-      <div class="container">
-        <h2 class="text-center"><u>NEGATIVE TOP 5</u></h2><br>            
-        <table class="table table-dark table-striped">
-          <thead>
-            <tr>
+    {% if submitbutton == "Submit"  %}
+    <br>
+    <div class="container">
+      <div class="row justify-content-start">
+        <div class="container">
+            Wait for a second! We're preparing sentiment analysis. For now, we're processing {{ total_counter }} reviews for the product "{{ product_name }}".<br>
+            The closer 'Polarity Rate' is to 1, the more likely it is to be a positive review.<br>
+            On the other hand, the closer 'Polarity Rate' is to -1, the more likely it is to be a negative review.
+          <div class="container p-4 mb-4 my-3" style="text-align: center;">
+              <img src=" data:{{ networkgraph }}" alt="...">
+          </div>
+        </div>
+
+        <div class="container">
+          <h2 class="text-center"><u>POSITIVE TOP 5 REVIEWS TABLE</u></h2><br>            
+          <table class="table table-dark table-striped">
+            <thead>
+              <tr>
                 <th>Title of Review</th>
                 <th>Review Content</th>
                 <th>Created Date</th>
@@ -60,8 +52,8 @@
             </thead>
             <tbody>
             <!-- jinja2 Technique -->
-            {% if n %}  
-            {% for i in n %}
+            {% if p %}  
+            {% for i in p %}
               <tr>
                 <td>{{i.summary}}</td>
                 <td>{{i.reviewText}}</td>
@@ -70,12 +62,48 @@
                 <td>{{i.avg_polarity}}</td>
                 <td>{{i.pos_sentence_rate}}</td>
                 <td>{{i.neg_sentence_rate}}</td>
-            </tr>
-          {% endfor %}
-          {% endif %}
-          </tbody>
-        </table>
+              </tr>
+            {% endfor %}
+            {% endif %}
+            </tbody>
+          </table>
+        </div>
+  
+        <div class="container">
+          <h2 class="text-center"><u>NEGATIVE TOP 5 REVIEWS TABLE</u></h2><br>           
+          <table class="table table-dark table-striped">
+            <thead>
+              <tr>
+                  <th>Title of Review</th>
+                  <th>Review Content</th>
+                  <th>Created Date</th>
+                  <th>Verified</th>
+                  <th>Polarity Rating</th>
+                  <th>Positive Sentence Rate</th>
+                  <th>Negative Sentence Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+              <!-- jinja2 Technique -->
+              {% if n %}  
+              {% for i in n %}
+                <tr>
+                  <td>{{i.summary}}</td>
+                  <td>{{i.reviewText}}</td>
+                  <td>{{i.unixReviewTime}}</td>
+                  <td>{{i.verified}}</td>
+                  <td>{{i.avg_polarity}}</td>
+                  <td>{{i.pos_sentence_rate}}</td>
+                  <td>{{i.neg_sentence_rate}}</td>
+              </tr>
+            {% endfor %}
+            {% endif %}
+            </tbody>
+          </table>
+        </div>
       </div>
+    </div>
+    {% endif %}
 
 </body>
 

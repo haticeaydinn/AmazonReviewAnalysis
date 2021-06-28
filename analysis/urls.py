@@ -11,7 +11,5 @@ urlpatterns = [
     path('cooccurance_words/', views.cooccurance_words),
     path('sentimentall/', views.sentiment_all),
     path('sentimentgraph/', views.sentiment_graph),
-    path('posdf/', views.positive_df),
-    path('negdf/', views.negative_df),
     path('filter/', views.FilterView)
 ]
