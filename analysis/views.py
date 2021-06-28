@@ -422,10 +422,12 @@ def FilterView(request):
         product_amazon_url_list = ProductTable.objects.filter(asin=prod_id).values_list('asin', flat = True)
         product_amazon_url_str = list(product_amazon_url_list)[0]
         product_amazon_url = 'https://www.amazon.com/dp/' + str(product_amazon_url_str)
+        avg_polarity_html = avg_polarity
     else:
         product_name = 'No product is searched yet!'
         product_img_url = 'http://toolsandtoys.net/wp-content/uploads/2016/07/Canopy-hero.jpg'
         product_amazon_url = 'https://www.amazon.com'
+        avg_polarity_html = 'Average polarity will be shown here!'
     context = {
         'queryset': qs,
         'total_count': total_counter,
@@ -433,7 +435,8 @@ def FilterView(request):
         'products': products,
         'product_img_url': product_img_url,
         'product_name': product_name,
-        'product_amazon_url': product_amazon_url
+        'product_amazon_url': product_amazon_url,
+        'avg_polarity_html': avg_polarity_html
     }
 
     for conn in connections.all():

@@ -3,70 +3,74 @@
 {% block content %}
 
 <body>
-    <div class="container">
-
-      <h3>Filter Product Reviews</h3>
-      <h6>You can search for any reviews. Click the buttons below and see the analysis.</h6>
-      <form method="GET" action=".">
-        <div class="form-row">
-            <div class="form-group col-12">
-                <div class="input-group">
-                    <input class="form-control py-2 border-right-0 border" type="search" name="content" placeholder="Review text contains..." />
-                    <span class="input-group-append">
-                        <div class="input-group-text bg-transparent">
-                            <i class="fa fa-search"></i>
-                        </div>
-                    </span>
-                </div>
-            </div>        
-        </div>
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <label class="input-group-text" for="inputGroupSelect01">Product: </label>
-          </div>
-          <select class="custom-select" id="inputGroupSelect01" name="item_id">
-            <option selected>Choose</option>
-              {% for entry in products %}
-              <option value = "{{ entry.asin }}" >{{ entry.title }}</option>
-              {% endfor %}     
-          </select>
-        </div>
-        <div class="form-group">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="verified" name="verified">
-            <label class="form-check-label" for="verified">
-              Verified
-            </label>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="notVerified" name="notVerified">
-            <label class="form-check-label" for="notVerified">
-              Not verified
-            </label>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Search</button>
-      </form>
-
-      <hr />
-    </div>
-
-    <div class="container">
+    <div class="container-fluid p-3">
       <div class="row justify-content-start">
         <div class="col-sm-3">
           <div class="card" style="width: 18rem;">
-            <img src="{{ product_img_url }}" class="card-img-top" alt="..." width="300" height="300">
+            <img src="{{ product_img_url }}" class="card-img-top" alt="..." width="200" height="200">
             <div class="card-body">
               <h5 class="card-title">{{ product_name }}</h5>
-              <p class="card-text">A product which belongs to Luxury Beauty!</p>
+              <p class="card-text">One of the Amazon products which is in Luxury Beauty category!</p>
               <a href="{{ product_amazon_url }}" class="btn btn-primary">Go to Amazon's website and see the product page</a>
             </div>
           </div>
         </div>
         <div class="col-sm-9">
-          <h6 style="text-align:center">Total reviews for this filtering: {{ total_count }}. {{ sentiment }}</h6>
+          <h2>Filter Product Reviews</h2><br>
+          You analyzed a product via "Analyzing Functionality" and tried to understand if a feature has good or bad effect on the product. For example, if you analyzed a foundation and wanted to determine its coverage is good or bad, then simple write "coverage" and select the product!
+          <br><h6>You can search for any reviews. Click the buttons below and see the analysis.</h6>
+          <form method="GET" action=".">
+            <div class="form-row">
+                <div class="form-group col-12">
+                    <div class="input-group">
+                        <input class="form-control py-2 border-right-0 border" type="search" name="content" placeholder="Review text contains..." />
+                        <span class="input-group-append">
+                            <div class="input-group-text bg-transparent">
+                                <i class="fa fa-search"></i>
+                            </div>
+                        </span>
+                    </div>
+                </div>        
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">Product: </label>
+              </div>
+              <select class="custom-select" id="inputGroupSelect01" name="item_id">
+                <option selected>Choose</option>
+                  {% for entry in products %}
+                  <option value = "{{ entry.asin }}" >{{ entry.title }}</option>
+                  {% endfor %}     
+              </select>
+            </div>
+            <div class="form-group">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="verified" name="verified">
+                <label class="form-check-label" for="verified">
+                  Verified
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="notVerified" name="notVerified">
+                <label class="form-check-label" for="notVerified">
+                  Not verified
+                </label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+          </form>
+        </div>
+      </div>
+      <hr />
+    </div>
+
+    <div class="container-fluid">
+          <h4 style="text-align:center">Total reviews for this filtering: {{ total_count }}. {{ sentiment }}</h4>
+          <h4 style="text-align:center">Average polarity rate for this filtering: {{ avg_polarity_html }}</h4>
+          <h6 style="text-align:center">The closer 'Average Polarity Rate' is to 1, the more likely it is to have a strong POSITIVE effect.</h6>
+          <h6 style="text-align:center">The closer 'Average Polarity Rate' is to -1, the more likely it is to have a strong NEGATIVE effect.</h6>
           <table class="table table-dark table-striped">
               <thead>
                 <tr>
@@ -76,6 +80,8 @@
                   <th>Review Text</th>
                   <th>Verified</th>
                   <th>Polarity Rating</th>
+                  <th>Positive Sentence Rate</th>
+                  <th>Negative Sentence Rate</th>
                 </tr>
               </thead>
               <tbody>
@@ -89,13 +95,13 @@
                   <td>{{i.reviewText}}</td>
                   <td>{{i.verified}}</td>
                   <td>{{i.avg_polarity}}</td>
+                  <td>{{i.pos_sentence_rate}}</td>
+                  <td>{{i.neg_sentence_rate}}</td>
                 </tr>
               {% endfor %}
               {% endif %}
               </tbody>
             </table>
-        </div>
-      </div>
     </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
