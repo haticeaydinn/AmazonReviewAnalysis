@@ -21,14 +21,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'jsxn37s_)md+0vo7$91c+1n&afa=z&9cis-v%m+3nqg13p$r9f'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 #DEBUG = True
 
 #ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'amazonreviewsanalysis.herokuapp.com', '*', '127.0.1.1']
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -99,12 +99,12 @@ DATABASES = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'htckzuke',
-        'USER': 'htckzuke',
-        'PASSWORD': 'GBnTkMH3tqTkUcg-SBilkh7XCkX1RZ4V',
-        'HOST': 'tai.db.elephantsql.com',
-        'PORT': '5432'
+        'ENGINE': '',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': ''
     }
 }
 
