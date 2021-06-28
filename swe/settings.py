@@ -149,6 +149,24 @@ USE_TZ = True
 STATIC_ROOT= os.path.join(BASE_DIR,'static_media/')
 STATICFILES_DIRS = ( os.path.join(BASE_DIR,'static/'),)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+        },
+    },
+}
 # end heroku edition
 
 STATIC_URL = '/static/'
