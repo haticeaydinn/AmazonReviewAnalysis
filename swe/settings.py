@@ -104,8 +104,7 @@ DATABASES = {
         'USER': 'htckzuke',
         'PASSWORD': 'GBnTkMH3tqTkUcg-SBilkh7XCkX1RZ4V',
         'HOST': 'tai.db.elephantsql.com',
-        'PORT': '5432',
-        'CONN_MAX_AGE': 20
+        'PORT': '5432'
     }
 }
 
