@@ -4,11 +4,38 @@
 
 <body>
     <div class="container p-4 mb-4 my-3">
-        <h3> Bigram Graph </h3>
-        Bigram: A two-word sequence of words<br><br>
-        Wait for a second! We're analyzing most frequent 2-words pairs. For now, we're processing {{ reviews_no }} reviews for the product {{ prod_name }}.
-        <img src='/analysis/cooccurance_words' class="card-img-top" alt="...">
-    </div>
+        <form action="" method="POST">
+          {% csrf_token %}
+          <h3> Bigram Graph </h3>
+            Bigram: A two-word sequence of words<br><br>
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <label class="input-group-text" for="inputGroupSelect01">Choose one of the Amazon products: </label>
+            </div>
+            <select class="custom-select" id="inputGroupSelect01" name="item_id">
+              <option selected>Choose</option>
+                {% for entry in products %}
+                <option value = '{{ entry.asin }}' >{{ entry.title }}</option>
+                {% endfor %}     
+            </select>
+          </div>
+          <input type="Submit" name="Submit" value="Submit"/>
+        </form>
+    
+        {% if submitbutton == "Submit"  %}
+        <br>
+        <div class="container">
+          <div class="row justify-content-start">
+            <div class="container">
+              <div class="container p-4 mb-4 my-3">
+                  <h5>Wait for a second! We're analyzing most frequent 2-words pairs. For now, we're processing {{ total_counter }} reviews for the product "{{ product_name }}".</h5>
+                  <img src=" data:{{ networkgraph }}" alt="..." width="1000" height="700">
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
 </body>
 
 {% endblock %}

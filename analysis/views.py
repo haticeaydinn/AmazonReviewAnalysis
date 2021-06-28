@@ -87,7 +87,7 @@ def common_words(request):
             total_counter = len(qs)
             cloud_uri= display_common_words(prod_id)
             #product_img = display_common_words(request)
-            context= {'product_name': product_name, 'total_counter': total_counter, 'products': products, 'submitbutton': submitbutton, 'networkgraph':cloud_uri,}
+            context= {'product_name': product_name, 'total_counter': total_counter, 'products': products, 'submitbutton': submitbutton, 'networkgraph':cloud_uri}
         else:
             product_name = 'No product is searched yet!'
             context= {'product_name': product_name, 'total_counter': 'No info', 'products': products, 'submitbutton': submitbutton}
@@ -181,8 +181,12 @@ def display_common_words(product_asin):
 
 
 
-def cooccurance_words(request):
-    product_id = val()
+def cooccurance_words(product_asin):
+    import string
+    fig = Figure()
+
+    product_id = product_asin
+    print(product_id)
 
     for conn in connections.all():
         conn.close()
@@ -225,7 +229,7 @@ def cooccurance_words(request):
         bigram_word_list.append(bigram_words)
         freq_list.append(freq)
 
-    fig = Figure()
+    
     plt.switch_backend('agg')
 
     f, ax = plt.subplots(figsize=(15, 10))  # set the size that you'd like (width, height)
@@ -243,7 +247,7 @@ def cooccurance_words(request):
     plt.ylabel('Words Group')
     plt.xlabel('Frequency')
     
-    buf = io.BytesIO()
+    '''buf = io.BytesIO()
     plt.savefig(buf, format='png')
     plt.close(fig)
 
@@ -252,23 +256,43 @@ def cooccurance_words(request):
         conn.close()
     return response
 
-    #return render(request, "occurance.html", post_dict)
+    #return render(request, "occurance.html", post_dict)'''
+    imgdata = io.BytesIO()
+    plt.savefig(imgdata, format='png', bbox_inches='tight')
+    imgdata.seek(0)
+    
+    string = base64.b64encode(imgdata.read())
+    uri = 'data:image/png;base64,' + urllib.parse.quote(string)
+    
+    return uri
 
 
 def cooccurance_words_view(request):
-    product_id = val()
-    rev_qs = ReviewTableNew.objects.filter(asin=product_id)
-    reviews_no = len(rev_qs)
-    product_name_list = ProductTable.objects.filter(asin=product_id).values_list('title', flat = True)
-    product_name_str = list(product_name_list)[0]
-    product_name = str(product_name_str)
-
-    context = {
-        'reviews_no': reviews_no,
-        'prod_name': product_name
-    }
+    prod_id = request.POST.get('item_id')
+    submitbutton= request.POST.get('Submit')
+    products = ProductTable.objects.all()
+    try:
+        for conn in connections.all():
+            conn.close()
+        if prod_id != '' and prod_id is not None and prod_id != 'Choose':
+            product_name_list = ProductTable.objects.filter(asin=prod_id).values_list('title', flat = True)
+            product_name_str = list(product_name_list)[0]
+            product_name = str(product_name_str)
+            qs = ReviewTableNew.objects.filter(asin=prod_id)
+            total_counter = len(qs)
+            cloud_uri= cooccurance_words(prod_id)
+            context= {'product_name': product_name, 'total_counter': total_counter, 'products': products, 'submitbutton': submitbutton, 'networkgraph':cloud_uri}
+        else:
+            product_name = 'No product is searched yet!'
+            context= {'product_name': product_name, 'total_counter': 'No info', 'products': products, 'submitbutton': submitbutton}
+        for conn in connections.all():
+            conn.close()
+        return render(request, 'occurance.html', context)
+    except psycopg2.OperationalError:
+        error_message = "There are lots of connection to db right now. Please contact to administrator or send an email to 'hatice3178@yahoo.com.tr'. Thank you!"
+        return HttpResponse(error_message, content_type="text/plain")
     
-    return render(request, 'occurance.html', context)
+    #return render(request, 'occurance.html', context)
 
 
 def sentiment_graph(request):
