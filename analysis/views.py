@@ -425,7 +425,7 @@ def FilterView(request):
         avg_polarity_html = avg_polarity
     else:
         product_name = 'No product is searched yet!'
-        product_img_url = 'http://toolsandtoys.net/wp-content/uploads/2016/07/Canopy-hero.jpg'
+        product_img_url = 'https://images-na.ssl-images-amazon.com/images/I/81td24W2i1L._AC_SL1500_.jpg'
         product_amazon_url = 'https://www.amazon.com'
         avg_polarity_html = 'Average polarity will be shown here!'
     context = {
