@@ -466,7 +466,7 @@ def FilterView(request):
         product_amazon_url_list = ProductTable.objects.filter(asin=prod_id).values_list('asin', flat = True)
         product_amazon_url_str = list(product_amazon_url_list)[0]
         product_amazon_url = 'https://www.amazon.com/dp/' + str(product_amazon_url_str)
-        avg_polarity_html = avg_polarity
+        avg_polarity_html = round(avg_polarity, 2)
     else:
         product_name = 'No product is searched yet!'
         product_img_url = 'https://images-na.ssl-images-amazon.com/images/I/81td24W2i1L._AC_SL1500_.jpg'
